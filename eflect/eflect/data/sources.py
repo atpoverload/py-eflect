@@ -1,3 +1,5 @@
+import threading
+
 from time import time
 
 import psutil
@@ -6,7 +8,7 @@ import yappi
 
 MEASUREMENT = None
 
-def sample_tasks(pid = None):
+def sample_tasks(pid=None):
     threads = []
     for thread in psutil.Process(pid).threads():
         try:
@@ -35,7 +37,8 @@ def sample_rapl():
 def sample_yappi():
     yappi.stop()
     traces = []
+    threads = {thread.ident: thread.native_id for thread in threading.enumerate()}
     for thread in yappi.get_thread_stats():
-        traces.append((thread.tid, yappi.get_func_stats(ctx_id=thread.id)))
+        traces.append((threads[thread.tid], yappi.get_func_stats(ctx_id=thread.id)))
     yappi.start()
     return (time(), traces)
