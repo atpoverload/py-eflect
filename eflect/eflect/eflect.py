@@ -35,20 +35,21 @@ class Eflect:
     def start(self):
         if not self.running:
             self.running = True
+
+            if not os.path.exists(self.output_dir):
+                os.mkdir(self.output_dir)
+
             self.executor = ProcessPoolExecutor(3)
 
             id = psutil.Process().pid
             cwd = os.getcwd()
-
-            if not os.path.exists(self.output_dir):
-                os.mkdir(self.output_dir)
 
             # jiffies
             self.executor.submit(periodic_sample, sample_tasks, parse_tasks_data, sample_args = [id], period = self.period, output_file = os.path.join(self.output_dir, 'ProcTaskSample.csv'))
             self.executor.submit(periodic_sample, sample_cpu, parse_cpu_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'ProcStatSample.csv'))
 
             # rapl
-            self.executor.submit(periodic_sample, sample_rapl, parse_energy_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'EnergySample.csv'))
+            self.executor.submit(periodic_sample, sample_rapl, parse_rapl_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'EnergySample.csv'))
 
             # traces
             self.yappi_executor = ThreadPoolExecutor(1)
