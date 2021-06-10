@@ -32,4 +32,14 @@ def pre_process(data_dir):
 
 def account_energy(path):
     app, cpu, energy, traces = pre_process(path)
-    return account_application_energy(app, cpu, energy)
+
+    footprints = account_application_energy(app, cpu, energy).dropna().reset_index()
+    footprints = footprints.assign(id = footprints.id.str.split('-').str[0].astype(int)).set_index(['timestamp', 'id'])[0]
+    footprints.name = 'energy'
+
+    traces = traces.set_index(['timestamp', 'id'])
+    traces.trace = traces.trace.str.split('site-packages').str[-1]
+
+    df = pd.merge(footprints, traces, how = 'outer', left_index=True, right_index=True)
+
+    return df

@@ -1,8 +1,9 @@
+import importlib
 import os
 
 from argparse import ArgumentParser, ArgumentError
 
-from eflect import profile
+import eflect
 
 def parse_eflect_args():
     parser = ArgumentParser()
@@ -41,7 +42,11 @@ def parse_eflect_args():
         raise ArgumentError('one of file or code must be provided')
 
     if args.file is not None:
-        args.workload = lambda: exec(args.file)
+        spec = importlib.util.spec_from_file_location("module.name", args.file)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        args.workload = lambda: module.run()
     else:
         args.workload = lambda: exec(args.code)
 
@@ -49,7 +54,11 @@ def parse_eflect_args():
 
 def main():
     args = parse_eflect_args()
-    footprints = profile(args.workload, period = args.period, output_dir = args.output)
+
+    eflect.profile(args.workload, period = args.period, output_dir = args.output)
+
+    footprints = eflect.read(output_dir = args.output)
+    print(footprints)
     footprints.to_csv(os.path.join(args.output, 'accounted-energy'))
 
 if __name__ == '__main__':

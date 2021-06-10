@@ -24,7 +24,7 @@ def periodic_sample(sample_func, parse_func, **kwargs):
     parse_func(data).to_csv(kwargs['output_file'], header = False)
 
 class Eflect:
-    def __init__(self, period = 50, output_dir = None):
+    def __init__(self, period=50, output_dir=None):
         self.period = period / 1000
         if output_dir is None:
             self.output_dir = os.getcwd()
@@ -66,11 +66,13 @@ class Eflect:
             yappi.stop()
             CHILD_PIPE.recv()
 
-def profile(workload, period = 50, output_dir = None):
+def profile(workload, period=50, output_dir=None):
     eflect = Eflect(period = period, output_dir = output_dir)
     eflect.start()
 
     workload()
 
     eflect.stop()
+
+def read(output_dir=None):
     return account_energy(output_dir)
