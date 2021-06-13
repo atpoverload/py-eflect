@@ -51,10 +51,11 @@ class Eflect:
             # rapl
             self.executor.submit(periodic_sample, sample_rapl, parse_rapl_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'EnergySample.csv'))
 
+            # TODO: re-enable when we can sample without disturbing (10x overhead)
             # traces
-            self.yappi_executor = ThreadPoolExecutor(1)
-            yappi.start()
-            self.yappi_executor.submit(periodic_sample, sample_yappi, parse_yappi_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'StackTraceSample.csv'))
+            # self.yappi_executor = ThreadPoolExecutor(1)
+            # yappi.start()
+            # self.yappi_executor.submit(periodic_sample, sample_yappi, parse_yappi_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'StackTraceSample.csv'))
 
     def stop(self):
         if self.running:
@@ -62,8 +63,8 @@ class Eflect:
 
             PARENT_PIPE.send(1)
             self.executor.shutdown()
-            self.yappi_executor.shutdown()
-            yappi.stop()
+            # self.yappi_executor.shutdown()
+            # yappi.stop()
             CHILD_PIPE.recv()
 
 def profile(workload, period=50, output_dir=None):

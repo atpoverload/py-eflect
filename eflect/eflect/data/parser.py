@@ -38,7 +38,9 @@ def parse_rapl_data(data):
         df['timestamp'] = pd.to_datetime(sample.timestamp, unit='s')
         parsed_data.append(df)
 
-    return pd.concat(parsed_data).set_index(['timestamp', 'domain'])[['dram', 'cpu', 'package', 'gpu']]
+    # rapl reports the instaneous different already, so we just cumsum
+    # here so the data shape is the same
+    return pd.concat(parsed_data).set_index(['timestamp', 'domain'])[['dram', 'cpu', 'package', 'gpu']].unstack().cumsum().stack()
 
 def parse_yappi_data(data):
     parsed_data = []

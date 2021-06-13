@@ -1,3 +1,4 @@
+import os
 import threading
 
 from time import time
@@ -8,22 +9,35 @@ import yappi
 
 MEASUREMENT = None
 
+# TODO: figure out why I have to use direct implementation to read jiffies instead of psutil
+
 def sample_tasks(pid=None):
     threads = []
     for thread in psutil.Process(pid).threads():
-        if thread.id == threading.get_native_id():
-            continue
         try:
-            p = psutil.Process(thread.id)
-            with p.oneshot():
-                jiffies = p.cpu_times()
-                threads.append((p.pid, p.name(), p.cpu_num(), jiffies.user, jiffies.system))
+            with open(os.path.join('/proc', str(pid), 'task', str(thread.id), 'stat')) as f:
+                stats = f.read().split(' ')
+                offset = len(stats) - 52 + 2
+                name = " ".join(stats[1:offset])[1:-1]
+                threads.append((thread.id, name, stats[38], int(stats[13]), int(stats[14])))
+
+            # p = psutil.Process(thread.id)
+            # with p.oneshot():
+            #     jiffies = p.cpu_times()
+            #     threads.append((p.pid, p.name(), p.cpu_num(), jiffies.user, jiffies.system))
         except:
             print('process ' + str(thread.id) + ' terminated before being sampled!')
     return (time(), tuple(threads))
 
 def sample_cpu():
-    return (time(), tuple([i] + list(t) for i, t in enumerate(psutil.cpu_times(percpu=True))))
+    cpus = []
+    with open(os.path.join('/proc', 'stat')) as f:
+        f.readline()
+        for cpu in range(os.cpu_count()):
+            cpus.append([cpu] + list(map(int, f.readline().split(' ')[1:])))
+    return (time(), tuple(cpus))
+
+    # return (time(), tuple([i] + list(t) for i, t in enumerate(psutil.cpu_times(percpu=True))))
 
 def sample_rapl():
     global MEASUREMENT
