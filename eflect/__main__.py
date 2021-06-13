@@ -38,8 +38,6 @@ def parse_eflect_args():
     )
 
     args = parser.parse_args()
-    if args.file is None and args.code is None:
-        raise ArgumentError('one of file or code must be provided')
 
     if args.file is not None:
         spec = importlib.util.spec_from_file_location("module.name", args.file)
@@ -47,19 +45,25 @@ def parse_eflect_args():
         spec.loader.exec_module(module)
 
         args.workload = lambda: module.run()
-    else:
+    elif args.code is not None:
         args.workload = lambda: exec(args.code)
+    else:
+        args.workload = None
 
     return args
 
 def main():
     args = parse_eflect_args()
 
-    eflect.profile(args.workload, period = args.period, output_dir = args.output)
+    if args.workload is not None:
+        eflect.profile(args.workload, period = args.period, output_dir = args.output)
+
+    if not os.path.exists(args.output):
+        print('no data found!')
+        return
 
     footprints = eflect.read(output_dir = args.output)
-    print(footprints)
-    footprints.to_csv(os.path.join(args.output, 'accounted-energy'))
+    footprints.to_csv(os.path.join(args.output, 'accounted-energy.csv'))
 
 if __name__ == '__main__':
     main()

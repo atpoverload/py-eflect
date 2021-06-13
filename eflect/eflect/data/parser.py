@@ -1,5 +1,3 @@
-import os
-
 import pandas as pd
 
 CPU_JIFFIES_HEADER = ['user', 'nice', 'system', 'idle', 'iowait', 'irq', 'softirq', 'steal', 'guest', 'guest_nice']
@@ -55,13 +53,3 @@ def parse_yappi_data(data):
         parsed_data.append(df)
 
     return pd.concat(parsed_data).set_index(['timestamp', 'id'])
-
-def write_data(data, output_root):
-    output_root = os.path.join(output_root, 'data')
-    if not os.path.exists(output_root):
-        os.mkdir(output_root)
-
-    parse_tasks_data(data['tasks']).to_csv(os.path.join(output_path, 'ProcTaskSample.csv'), header = False)
-    parse_cpu_data(data['cpu']).to_csv(os.path.join(output_path, 'ProcStatSample.csv'), header = False)
-    parse_rapl_data(data['rapl']).to_csv(os.path.join(output_path, 'EnergySample.csv'), header = False)
-    parse_yappi_data(data['yappi']).to_csv(os.path.join(output_path, 'StackTraceSample.csv'), header = False)

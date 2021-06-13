@@ -2,10 +2,10 @@ import os
 
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from multiprocessing import Pipe
-from time import sleep
+from time import sleep, time
 
 import psutil
-import yappi
+# import yappi
 
 from eflect.data import *
 from eflect.processing import account_energy
@@ -16,11 +16,12 @@ PERIOD = 0.050
 def periodic_sample(sample_func, parse_func, **kwargs):
     data = []
     while not CHILD_PIPE.poll():
+        start = time()
         data.append(sample_func(*kwargs['sample_args']))
         if 'period' in kwargs:
-            sleep(kwargs['period'])
+            sleep(kwargs['period'] - (time() - start))
         else:
-            sleep(PERIOD)
+            sleep(PERIOD - (time() - start))
     parse_func(data).to_csv(kwargs['output_file'], header = False)
 
 class Eflect:

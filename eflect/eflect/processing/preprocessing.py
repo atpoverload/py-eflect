@@ -1,14 +1,10 @@
-import os
-
-from sys import argv
-
-import numpy as np
 import pandas as pd
 
 # constants for vaporeon/jolteon experiments
 WRAP_AROUND_VALUE = 16384
 SAMPLE_INTERVAL = '50ms'
 WINDOW_SIZE = '501ms'
+# edit the check value (20) for system
 DOMAIN_CONVERSION = lambda x: 0 if int(x) < 20 else 1
 
 def bucket_timestamps(timestamps):
@@ -70,8 +66,3 @@ def process_cpu_data(df):
     jiffies = jiffies.div(ts, axis = 0).stack()
 
     return jiffies.drop(columns = ['cpu'])[0]
-
-def process_async_data(df):
-    df.columns = ['timestamp', 'id', 'trace']
-    df.timestamp = bucket_timestamps(df.timestamp)
-    return df
