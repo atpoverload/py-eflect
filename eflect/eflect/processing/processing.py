@@ -29,7 +29,7 @@ def pre_process(data_dir):
     return pd.concat(app), pd.concat(cpu), pd.concat(energy)
 
 def account_energy(path):
-    app, cpu, energy, traces = pre_process(path)
+    app, cpu, energy = pre_process(path)
 
     footprints = account_application_energy(app, cpu, energy).dropna().reset_index()
     footprints = footprints.assign(id = footprints.id.str.split('-').str[0].astype(int)).set_index(['timestamp', 'id'])[0]
