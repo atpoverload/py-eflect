@@ -66,3 +66,13 @@ def process_cpu_data(df):
     jiffies = jiffies.div(ts, axis = 0).stack()
 
     return jiffies.drop(columns = ['cpu'])[0]
+
+def process_smi_data(df):
+    df.columns = ["timestamp", "domain", "pci.bus_id", "driver_version", "gpu"]
+    df.timestamp = bucket_timestamps(df.timestamp) + pd.to_timedelta('6H')
+    df.gpu = df.gpu.str.strip().str.split(' ').str[0].astype(float)
+    df['dram'] = 0
+    df['package'] = 0
+    df['cpu'] = 0
+
+    return df.set_index(['timestamp', 'domain'])[['dram', 'cpu', 'package', 'gpu']]
