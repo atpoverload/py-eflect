@@ -11,7 +11,6 @@ import psutil
 import yappi
 
 from eflect.data.jiffies import sample_cpu, parse_cpu_data, sample_tasks, parse_tasks_data
-# from eflect.data.pdu import sample_pdu, parse_pdu_data
 from eflect.data.rapl import sample_rapl, parse_rapl_data
 from eflect.data.yappi import parse_yappi_data
 from eflect.processing import account_energy
@@ -61,22 +60,11 @@ class Eflect:
             cwd = os.getcwd()
 
             # jiffies
-            self.executor.submit(periodic_sample, sample_tasks, parse_tasks_data, sample_args = [id], period = self.period, output_file = os.path.join(self.output_dir, 'ProcTaskSample.csv'))
             self.executor.submit(periodic_sample, sample_cpu, parse_cpu_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'ProcStatSample.csv'))
+            self.executor.submit(periodic_sample, sample_tasks, parse_tasks_data, sample_args = [id], period = self.period, output_file = os.path.join(self.output_dir, 'ProcTaskSample.csv'))
 
             # energy
-            # self.executor.submit(periodic_sample, sample_rapl, parse_rapl_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'EnergySample.csv'))
-            # self.executor.submit(periodic_sample, sample_pdu, parse_pdu_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'EnergySample.csv'))
-            self.smi_source = subprocess.Popen(
-                args=[
-                    "nvidia-smi.exe "
-                    "--query-gpu=timestamp,name,pci.bus_id,driver_version,power.draw "
-                    "--format=csv,noheader -lms 50 > "
-                    f"{os.path.join(self.output_dir, 'NvidiaSmiSample.csv')}"
-                ],
-                shell=True,
-                stdout=subprocess.PIPE
-            )
+            self.executor.submit(periodic_sample, sample_rapl, parse_rapl_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'EnergySample.csv'))
 
             self.yappi_executor = ThreadPoolExecutor(1)
             self.yappi_future = self.executor.submit(periodic_sample_threads)
@@ -88,10 +76,9 @@ class Eflect:
 
             PARENT_PIPE.send(1)
             self.executor.shutdown()
+            yappi.stop()
             self.yappi_executor.shutdown()
             CHILD_PIPE.recv()
-            yappi.stop()
-            self.smi_source.terminate()
 
             parse_yappi_data(yappi.get_thread_stats(), self.yappi_future.result()).to_csv(os.path.join(self.output_dir, 'StackTraceSample.csv'), header=False)
 

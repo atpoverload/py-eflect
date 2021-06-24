@@ -7,6 +7,7 @@ import eflect
 
 def parse_eflect_args():
     parser = ArgumentParser()
+
     parser.add_argument(
         '-f',
         '--file',
@@ -39,8 +40,11 @@ def parse_eflect_args():
 
     args = parser.parse_args()
 
-    if args.file is not None:
-        spec = importlib.util.spec_from_file_location("module.name", args.file)
+    # check if there is a workload to run
+    if args.file is not None and args.code is not None:
+        raise ArgumentError('only one of --file or --code can be specified!')
+    elif args.file is not None:
+        spec = importlib.util.spec_from_file_location('module.name', args.file)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
@@ -55,13 +59,14 @@ def parse_eflect_args():
 def main():
     args = parse_eflect_args()
 
+    # profile the workload
     if args.workload is not None:
         eflect.profile(args.workload, period = args.period, output_dir = args.output)
 
     if not os.path.exists(args.output):
-        print('no data found!')
-        return
+        raise ArgumentError('specified output directory {} was not found!'.format(args.output))
 
+    # get the footprints
     footprints = eflect.read(output_dir = args.output)
     footprints.to_csv(os.path.join(args.output, 'accounted-energy.csv'))
 
