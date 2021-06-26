@@ -66,3 +66,9 @@ def process_cpu_data(df):
     jiffies = jiffies.div(ts, axis = 0).stack()
 
     return jiffies.drop(columns = ['cpu'])[0]
+
+def process_yappi_data(df):
+    df.columns = ['id', 'trace', 'calls']
+    df = df.set_index(['id', 'trace'])
+    df = df / df.groupby(['id', 'trace']).sum()
+    return df

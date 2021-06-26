@@ -1,3 +1,4 @@
+""" A data collector that collects data needed for eflect """
 import os
 import subprocess
 import threading
@@ -18,16 +19,9 @@ from eflect.processing import account_energy
 PARENT_PIPE, CHILD_PIPE = Pipe()
 PERIOD = 0.050
 
-def periodic_sample_threads():
-    threads = {}
-    while not CHILD_PIPE.poll():
-        start = time()
-        threads.update({thread.ident: thread.native_id for thread in threading.enumerate()})
-        sleep(max(0, PERIOD - (time() - start)))
-
-    return threads
-
+# this should be a submit() chain so we can stop with shutdown()
 def periodic_sample(sample_func, parse_func, **kwargs):
+    """ Collects data from a source periodically and writes it to a file """
     data = []
     while not CHILD_PIPE.poll():
         start = time()
@@ -48,6 +42,7 @@ class Eflect:
         self.running = False
 
     def start(self):
+        """ Starts data collection """
         if not self.running:
             self.running = True
 
@@ -66,11 +61,13 @@ class Eflect:
             # energy
             self.executor.submit(periodic_sample, sample_rapl, parse_rapl_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'EnergySample.csv'))
 
+            # yappi
             self.yappi_executor = ThreadPoolExecutor(1)
-            self.yappi_future = self.executor.submit(periodic_sample_threads)
+            self.yappi_future = self.yappi_executor.submit(self.periodic_sample_threads)
             yappi.start()
 
     def stop(self):
+        """ Stops data collection """
         if self.running:
             self.running = False
 
@@ -82,7 +79,18 @@ class Eflect:
 
             parse_yappi_data(yappi.get_thread_stats(), self.yappi_future.result()).to_csv(os.path.join(self.output_dir, 'StackTraceSample.csv'), header=False)
 
+    def periodic_sample_threads(self):
+        """ Samples the currently active threads """
+        threads = {}
+        while self.running:
+            start = time()
+            threads.update({thread.ident: thread.native_id for thread in threading.enumerate()})
+            sleep(max(0, 1 - (time() - start)))
+
+        return threads
+
 def profile(workload, period=50, output_dir=None):
+    """ Collects data for the workload """
     eflect = Eflect(period = period, output_dir = output_dir)
     eflect.start()
 
@@ -91,4 +99,5 @@ def profile(workload, period=50, output_dir=None):
     eflect.stop()
 
 def read(output_dir=None):
+    """ Reads data as footprints """
     return account_energy(output_dir)

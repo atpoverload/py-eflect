@@ -23,9 +23,6 @@ def sample_rapl():
 
 def parse_rapl_data(data):
     """ Stops the measurement and puts the pyRAPL output into a DataFrame. """
-    if MEASUREMENT is not None:
-        MEASUREMENT.end()
-        MEASUREMENT = None
     parsed_data = []
     for sample in data:
         df = pd.DataFrame(data = zip(sample.pkg, sample.dram))

@@ -44,7 +44,7 @@ def sample_cpu():
     with open(PROC_STAT) as f:
         f.readline()
         for cpu in range(os.cpu_count()):
-            cpus.append([cpu] + f.readline().split(' ')[1:])
+            cpus.append([cpu] + f.readline().replace(os.linesep, '').split(' ')[1:])
     return {'timestamp': time(), 'data': cpus}
 
 def parse_cpu_data(data):
