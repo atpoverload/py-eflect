@@ -11,6 +11,7 @@ def bucket_timestamps(timestamps):
     return pd.to_datetime(timestamps).dt.floor(SAMPLE_INTERVAL)
 
 def max_rolling_difference(df, window_size = WINDOW_SIZE):
+    """ Computes a rolling difference of points up to the window size """
     values = df - df.rolling(window_size).min()
 
     timestamps = df.reset_index().timestamp.astype(int) / 10**9
@@ -26,6 +27,7 @@ def check_wrap_around(value):
         return value
 
 def process_energy_data(df):
+    """ Computes the power of each 50ms bucket """
     df.columns = ['timestamp', 'domain', 'dram', 'cpu', 'package', 'gpu']
     df.timestamp = bucket_timestamps(df.timestamp)
     df = df.groupby(['timestamp', 'domain']).min()
@@ -38,6 +40,7 @@ def process_energy_data(df):
     return energy
 
 def process_app_data(df):
+    """ Computes the app jiffy rate of each 50ms bucket """
     df.columns = ['timestamp', 'id', 'name', 'cpu', 'user', 'system']
     df['jiffies'] = df.user + df.system
     df = df[~df.name.str.contains('eflect-')]
@@ -55,6 +58,7 @@ def process_app_data(df):
     return jiffies
 
 def process_cpu_data(df):
+    """ Computes the cpu jiffy rate of each 50ms bucket """
     df.columns = ['timestamp', 'cpu', 'user', 'nice', 'system', 'idle', 'iowait', 'irq', 'softirq', 'steal', 'guest', 'guest_nice']
     df['jiffies'] = df.drop(columns = ['timestamp', 'cpu', 'idle', 'iowait']).sum(axis = 1)
     df.timestamp = bucket_timestamps(df.timestamp)
@@ -68,6 +72,7 @@ def process_cpu_data(df):
     return jiffies.drop(columns = ['cpu'])[0]
 
 def process_yappi_data(df):
+    """ Computes the jiffy rate of each 50ms bucket """
     df.columns = ['id', 'trace', 'calls']
     df = df.set_index(['id', 'trace']).calls
     df = df / df.groupby(['id']).sum()

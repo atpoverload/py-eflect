@@ -47,4 +47,7 @@ def account_energy(path):
     footprints = footprints.assign(id = footprints.id.str.split('-').str[0].astype(int)).set_index(['timestamp', 'id'])[0]
     footprints.name = 'energy'
 
+    footprints = align_methods(footprints, path)
+    footprints.name = 'energy'
+
     return footprints
