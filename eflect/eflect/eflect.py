@@ -77,7 +77,7 @@ class Eflect:
             self.yappi_executor.shutdown()
             CHILD_PIPE.recv()
 
-            parse_yappi_data(yappi.get_thread_stats(), self.yappi_future.result()).to_csv(os.path.join(self.output_dir, 'StackTraceSample.csv'), header=False)
+            parse_yappi_data(yappi.get_thread_stats(), self.yappi_future.result()).to_csv(os.path.join(self.output_dir, 'YappiSample.csv'), header=False)
 
     def periodic_sample_threads(self):
         """ Samples the currently active threads """

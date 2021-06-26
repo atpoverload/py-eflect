@@ -69,6 +69,6 @@ def process_cpu_data(df):
 
 def process_yappi_data(df):
     df.columns = ['id', 'trace', 'calls']
-    df = df.set_index(['id', 'trace'])
-    df = df / df.groupby(['id', 'trace']).sum()
+    df = df.set_index(['id', 'trace']).calls
+    df = df / df.groupby(['id']).sum()
     return df
