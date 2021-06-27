@@ -43,11 +43,12 @@ def align_methods(footprints, data_dir):
 def account_energy(path):
     app, cpu, energy = pre_process(path)
 
-    footprints = account_application_energy(app, cpu, energy).dropna().reset_index()
-    footprints = footprints.assign(id = footprints.id.str.split('-').str[0].astype(int)).set_index(['timestamp', 'id'])[0]
-    footprints.name = 'energy'
+    footprint = account_application_energy(app, cpu, energy).dropna().reset_index()
+    footprint = footprint.assign(id = footprint.id.str.split('-').str[0].astype(int)).set_index(['timestamp', 'id'])[0]
+    footprint.name = 'energy'
 
-    footprints = align_methods(footprints, path)
-    footprints.name = 'energy'
+    ranking = align_methods(footprint, path)
+    ranking.name = 'energy'
+    ranking = ranking / ranking.sum()
 
-    return footprints
+    return footprint, ranking

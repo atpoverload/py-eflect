@@ -7,7 +7,7 @@ def parse_yappi_data(data, threads):
     df = []
     for thread in data:
         for trace in yappi.get_func_stats(ctx_id=thread.id):
-            df.append((threads[thread.tid], trace[4], trace[15]))
+            df.append((threads[thread.tid], trace[8], trace[15]))
     df = pd.DataFrame(df)
     df.columns = ['id', 'calls', 'method']
 
