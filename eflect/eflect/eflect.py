@@ -25,16 +25,15 @@ def periodic_sample(sample_func, parse_func, **kwargs):
     data = []
     while not CHILD_PIPE.poll():
         start = time()
-        data.append(sample_func(*kwargs['sample_args']))
-        if 'period' in kwargs:
-            sleep(max(0, kwargs['period'] - (time() - start)))
+        if 'sample_args' in kwargs:
+            data.append(sample_func(kwargs['sample_args']))
         else:
-            sleep(max(0, PERIOD - (time() - start)))
-    parse_func(data).to_csv(kwargs['output_file'], header = False)
+            data.append(sample_func())
+        sleep(max(0, PERIOD - (time() - start)))
+    return parse_func(data), kwargs['output']
 
 class Eflect:
-    def __init__(self, period=50, output_dir=None):
-        self.period = period / 1000
+    def __init__(self, output_dir=None):
         if output_dir is None:
             self.output_dir = os.getcwd()
         else:
@@ -46,24 +45,35 @@ class Eflect:
         if not self.running:
             self.running = True
 
-            if not os.path.exists(self.output_dir):
-                os.mkdir(self.output_dir)
-
             self.executor = ProcessPoolExecutor(3)
-
-            id = psutil.Process().pid
-            cwd = os.getcwd()
+            self.data_futures = []
 
             # jiffies
-            self.executor.submit(periodic_sample, sample_cpu, parse_cpu_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'ProcStatSample.csv'))
-            self.executor.submit(periodic_sample, sample_tasks, parse_tasks_data, sample_args = [id], period = self.period, output_file = os.path.join(self.output_dir, 'ProcTaskSample.csv'))
+            self.data_futures.append(self.executor.submit(
+                periodic_sample,
+                sample_cpu,
+                parse_cpu_data,
+                output='ProcStatSample.csv'
+            ))
+            self.data_futures.append(self.executor.submit(
+                periodic_sample,
+                sample_tasks,
+                parse_tasks_data,
+                sample_args=psutil.Process().pid,
+                output='ProcTaskSample.csv'
+            ))
 
             # energy
-            self.executor.submit(periodic_sample, sample_rapl, parse_rapl_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'EnergySample.csv'))
+            self.data_futures.append(self.executor.submit(
+                periodic_sample,
+                sample_rapl,
+                parse_rapl_data,
+                output='EnergySample.csv'
+            ))
 
             # yappi
             self.yappi_executor = ThreadPoolExecutor(1)
-            self.yappi_future = self.yappi_executor.submit(self.periodic_sample_threads)
+            self.thread_future = self.yappi_executor.submit(self.periodic_sample_threads)
             yappi.start()
 
     def stop(self):
@@ -77,7 +87,18 @@ class Eflect:
             self.yappi_executor.shutdown()
             CHILD_PIPE.recv()
 
-            parse_yappi_data(yappi.get_thread_stats(), self.yappi_future.result()).to_csv(os.path.join(self.output_dir, 'YappiSample.csv'), header=False)
+            if not os.path.exists(self.output_dir):
+                os.mkdir(self.output_dir)
+            output_file = lambda f: os.path.join(self.output_dir, f)
+
+            for future in self.data_futures:
+                data, output_name = future.result()
+                data.to_csv(output_file(output_name))
+
+            parse_yappi_data(
+                yappi.get_thread_stats(),
+                self.thread_future.result()
+            ).to_csv(output_file('YappiSample.csv'))
 
     def periodic_sample_threads(self):
         """ Samples the currently active threads """
@@ -91,7 +112,7 @@ class Eflect:
 
 def profile(workload, period=50, output_dir=None):
     """ Collects data for the workload """
-    eflect = Eflect(period = period, output_dir = output_dir)
+    eflect = Eflect(output_dir = output_dir)
     eflect.start()
 
     workload()

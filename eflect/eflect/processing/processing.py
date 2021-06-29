@@ -19,7 +19,7 @@ def pre_process(data_dir):
     energy = []
     traces = []
     for f in os.listdir(os.path.join(data_dir)):
-        df = pd.read_csv(os.path.join(data_dir, f), header = None)
+        df = pd.read_csv(os.path.join(data_dir, f))
         if 'ProcTaskSample' in f:
             app.append(process_app_data(df))
         elif 'ProcStatSample' in f:
