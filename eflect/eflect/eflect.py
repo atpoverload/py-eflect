@@ -108,7 +108,7 @@ class Eflect:
                 for trace in yappi.get_func_stats(ctx_id=thread.id):
                     data.append((start, threads[thread.tid], trace[3], trace[15]))
             yappi.start()
-            sleep(max(0, PERIOD - (time() - start)))
+            sleep(max(0, 1 - (time() - start)))
 
         return parse_yappi_data(data), 'YappiSample.csv'
 
