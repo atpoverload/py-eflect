@@ -64,17 +64,17 @@ class Eflect:
             ))
 
             # energy
-            self.data_futures.append(self.executor.submit(
-                periodic_sample,
-                sample_rapl,
-                parse_rapl_data,
-                output='EnergySample.csv'
-            ))
+            # self.data_futures.append(self.executor.submit(
+            #     periodic_sample,
+            #     sample_rapl,
+            #     parse_rapl_data,
+            #     output='EnergySample.csv'
+            # ))
 
             # yappi
             self.yappi_executor = ThreadPoolExecutor(1)
-            self.thread_future = self.yappi_executor.submit(self.periodic_sample_threads)
             yappi.start()
+            self.data_futures.append(self.yappi_executor.submit(self.periodic_sample_threads))
 
     def stop(self):
         """ Stops data collection """
@@ -95,20 +95,22 @@ class Eflect:
                 data, output_name = future.result()
                 data.to_csv(output_file(output_name))
 
-            parse_yappi_data(
-                yappi.get_thread_stats(),
-                self.thread_future.result()
-            ).to_csv(output_file('YappiSample.csv'))
-
     def periodic_sample_threads(self):
         """ Samples the currently active threads """
-        threads = {}
+        data = []
         while self.running:
             start = time()
-            threads.update({thread.ident: thread.native_id for thread in threading.enumerate()})
-            sleep(max(0, 1 - (time() - start)))
+            yappi.stop()
+            threads = {thread.ident: thread.native_id for thread in threading.enumerate()}
+            for thread in yappi.get_thread_stats():
+                if thread.tid not in threads.keys():
+                    continue
+                for trace in yappi.get_func_stats(ctx_id=thread.id):
+                    data.append((start, threads[thread.tid], trace[3], trace[15]))
+            yappi.start()
+            sleep(max(0, PERIOD - (time() - start)))
 
-        return threads
+        return parse_yappi_data(data), 'YappiSample.csv'
 
 def profile(workload, period=50, output_dir=None):
     """ Collects data for the workload """
