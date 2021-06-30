@@ -18,6 +18,5 @@ def parse_yappi_data(data):
     """ Extracts all traces from yappi and puts it into a DataFrame. """
     df = pd.DataFrame(data)
     df.columns = ['timestamp', 'id', 'calls', 'method']
-    print(df.sort_values(by = ['calls']).tail(50))
 
     return df.set_index(['timestamp', 'id', 'method'])

@@ -64,12 +64,12 @@ class Eflect:
             ))
 
             # energy
-            # self.data_futures.append(self.executor.submit(
-            #     periodic_sample,
-            #     sample_rapl,
-            #     parse_rapl_data,
-            #     output='EnergySample.csv'
-            # ))
+            self.data_futures.append(self.executor.submit(
+                periodic_sample,
+                sample_rapl,
+                parse_rapl_data,
+                output='EnergySample.csv'
+            ))
 
             # yappi
             self.yappi_executor = ThreadPoolExecutor(1)
