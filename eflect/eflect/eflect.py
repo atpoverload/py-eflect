@@ -1,32 +1,39 @@
+""" A data collector that collects data needed for eflect """
 import os
+import subprocess
+import threading
 
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from multiprocessing import Pipe
+from subprocess import Popen
 from time import sleep, time
 
 import psutil
-# import yappi
+import yappi
 
-from eflect.data import *
+from eflect.data.jiffies import sample_cpu, parse_cpu_data, sample_tasks, parse_tasks_data
+from eflect.data.rapl import sample_rapl, parse_rapl_data
+from eflect.data.yappi import parse_yappi_data
 from eflect.processing import account_energy
 
 PARENT_PIPE, CHILD_PIPE = Pipe()
 PERIOD = 0.050
 
+# this should be a submit() chain so we can stop with shutdown()
 def periodic_sample(sample_func, parse_func, **kwargs):
+    """ Collects data from a source periodically and writes it to a file """
     data = []
     while not CHILD_PIPE.poll():
         start = time()
-        data.append(sample_func(*kwargs['sample_args']))
-        if 'period' in kwargs:
-            sleep(kwargs['period'] - (time() - start))
+        if 'sample_args' in kwargs:
+            data.append(sample_func(kwargs['sample_args']))
         else:
-            sleep(PERIOD - (time() - start))
-    parse_func(data).to_csv(kwargs['output_file'], header = False)
+            data.append(sample_func())
+        sleep(max(0, PERIOD - (time() - start)))
+    return parse_func(data), kwargs['output']
 
 class Eflect:
-    def __init__(self, period=50, output_dir=None):
-        self.period = period / 1000
+    def __init__(self, output_dir=None):
         if output_dir is None:
             self.output_dir = os.getcwd()
         else:
@@ -34,42 +41,80 @@ class Eflect:
         self.running = False
 
     def start(self):
+        """ Starts data collection """
         if not self.running:
             self.running = True
 
-            if not os.path.exists(self.output_dir):
-                os.mkdir(self.output_dir)
-
             self.executor = ProcessPoolExecutor(3)
-
-            id = psutil.Process().pid
-            cwd = os.getcwd()
+            self.data_futures = []
 
             # jiffies
-            self.executor.submit(periodic_sample, sample_tasks, parse_tasks_data, sample_args = [id], period = self.period, output_file = os.path.join(self.output_dir, 'ProcTaskSample.csv'))
-            self.executor.submit(periodic_sample, sample_cpu, parse_cpu_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'ProcStatSample.csv'))
+            self.data_futures.append(self.executor.submit(
+                periodic_sample,
+                sample_cpu,
+                parse_cpu_data,
+                output='ProcStatSample.csv'
+            ))
+            self.data_futures.append(self.executor.submit(
+                periodic_sample,
+                sample_tasks,
+                parse_tasks_data,
+                sample_args=psutil.Process().pid,
+                output='ProcTaskSample.csv'
+            ))
 
-            # rapl
-            self.executor.submit(periodic_sample, sample_rapl, parse_rapl_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'EnergySample.csv'))
+            # energy
+            self.data_futures.append(self.executor.submit(
+                periodic_sample,
+                sample_rapl,
+                parse_rapl_data,
+                output='EnergySample.csv'
+            ))
 
-            # TODO: re-enable when we can sample without disturbing (10x overhead)
-            # traces
-            # self.yappi_executor = ThreadPoolExecutor(1)
-            # yappi.start()
-            # self.yappi_executor.submit(periodic_sample, sample_yappi, parse_yappi_data, sample_args = [], period = self.period, output_file = os.path.join(self.output_dir, 'StackTraceSample.csv'))
+            # yappi
+            self.yappi_executor = ThreadPoolExecutor(1)
+            yappi.start()
+            self.data_futures.append(self.yappi_executor.submit(self.periodic_sample_threads))
 
     def stop(self):
+        """ Stops data collection """
         if self.running:
             self.running = False
 
             PARENT_PIPE.send(1)
             self.executor.shutdown()
-            # self.yappi_executor.shutdown()
-            # yappi.stop()
+            yappi.stop()
+            self.yappi_executor.shutdown()
             CHILD_PIPE.recv()
 
+            if not os.path.exists(self.output_dir):
+                os.mkdir(self.output_dir)
+            output_file = lambda f: os.path.join(self.output_dir, f)
+
+            for future in self.data_futures:
+                data, output_name = future.result()
+                data.to_csv(output_file(output_name))
+
+    def periodic_sample_threads(self):
+        """ Samples the currently active threads """
+        data = []
+        while self.running:
+            start = time()
+            yappi.stop()
+            threads = {thread.ident: thread.native_id for thread in threading.enumerate()}
+            for thread in yappi.get_thread_stats():
+                if thread.tid not in threads.keys():
+                    continue
+                for trace in yappi.get_func_stats(ctx_id=thread.id):
+                    data.append((start, threads[thread.tid], trace))
+            yappi.start()
+            sleep(max(0, 1 - (time() - start)))
+
+        return parse_yappi_data(data), 'YappiSample.csv'
+
 def profile(workload, period=50, output_dir=None):
-    eflect = Eflect(period = period, output_dir = output_dir)
+    """ Collects data for the workload """
+    eflect = Eflect(output_dir = output_dir)
     eflect.start()
 
     workload()
@@ -77,4 +122,5 @@ def profile(workload, period=50, output_dir=None):
     eflect.stop()
 
 def read(output_dir=None):
+    """ Reads data as footprints """
     return account_energy(output_dir)
