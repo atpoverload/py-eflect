@@ -5,7 +5,6 @@ import threading
 
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from multiprocessing import Pipe
-from subprocess import Popen
 from time import sleep, time
 
 import psutil
@@ -70,6 +69,20 @@ class Eflect:
                 parse_rapl_data,
                 output='EnergySample.csv'
             ))
+            # TODO(timur): this might need to be fixed; it only is tested on my PC
+            if not os.path.exists(self.output_dir):
+                os.mkdir(self.output_dir)
+            self.smi_source = subprocess.Popen(
+                args=' '.join([
+                    'nvidia-smi',
+                    '--query-gpu=timestamp,name,pci.bus_id,driver_version,power.draw',
+                    '--format=csv',
+                    '-lms 50',
+                    '> {}'.format(os.path.join(self.output_dir, 'NvidiaSmiSample.csv'))
+                ]),
+                shell=True,
+                # stdout=subprocess.PIPE
+            )
 
             # yappi
             self.yappi_executor = ThreadPoolExecutor(1)
@@ -85,6 +98,7 @@ class Eflect:
             self.executor.shutdown()
             yappi.stop()
             self.yappi_executor.shutdown()
+            self.smi_source.terminate()
             CHILD_PIPE.recv()
 
             if not os.path.exists(self.output_dir):
