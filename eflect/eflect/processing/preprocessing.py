@@ -72,8 +72,10 @@ def process_cpu_data(df):
     return jiffies.drop(columns = ['cpu'])[0]
 
 def process_yappi_data(df):
-    """ Computes the jiffy rate of each 50ms bucket """
-    df.columns = ['id', 'trace', 'calls']
-    df = df.set_index(['id', 'trace']).calls
-    df = df / df.groupby(['id']).sum()
+    """ Computes the method call rate of each 1s bucket """
+    df.columns = ['timestamp', 'id', 'trace', 'calls']
+    df.timestamp = bucket_timestamps(df.timestamp)
+    df = df.set_index(['timestamp', 'id', 'trace']).calls
+    df = df / df.groupby(['timestamp', 'id']).sum()
+
     return df

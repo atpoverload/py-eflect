@@ -106,7 +106,7 @@ class Eflect:
                 if thread.tid not in threads.keys():
                     continue
                 for trace in yappi.get_func_stats(ctx_id=thread.id):
-                    data.append((start, threads[thread.tid], trace[3], trace[15]))
+                    data.append((start, threads[thread.tid], trace))
             yappi.start()
             sleep(max(0, 1 - (time() - start)))
 
