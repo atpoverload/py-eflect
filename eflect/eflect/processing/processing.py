@@ -35,7 +35,7 @@ def align_methods(footprints, data_dir):
             df = pd.read_csv(os.path.join(data_dir, f))
             if 'YappiSample' in f:
                 df = footprints.groupby('id').sum() * process_yappi_data(df)
-                df = df.groupby('trace').sum().sort_values(ascending=False)
+                df = df.groupby('method').sum().sort_values(ascending=False)
                 energy.append(df)
 
         return pd.concat(energy)

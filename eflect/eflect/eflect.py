@@ -103,7 +103,7 @@ class Eflect:
             yappi.stop()
             threads = {thread.ident: thread.native_id for thread in threading.enumerate()}
             for thread in yappi.get_thread_stats():
-                if thread.tid not in threads.keys():
+                if thread.tid not in threads.keys() or thread.tid == threading.current_thread().ident:
                     continue
                 for trace in yappi.get_func_stats(ctx_id=thread.id):
                     data.append((start, threads[thread.tid], trace))
