@@ -28,7 +28,6 @@ def check_wrap_around(value):
 
 def process_energy_data(df):
     """ Computes the power of each 50ms bucket """
-    df.columns = ['timestamp', 'domain', 'dram', 'cpu', 'package', 'gpu']
     df.timestamp = bucket_timestamps(df.timestamp)
     df = df.groupby(['timestamp', 'domain']).min()
     df.columns.name = 'component'
@@ -41,7 +40,6 @@ def process_energy_data(df):
 
 def process_app_data(df):
     """ Computes the app jiffy rate of each 50ms bucket """
-    df.columns = ['timestamp', 'id', 'name', 'cpu', 'user', 'system']
     df['jiffies'] = df.user + df.system
     df = df[~df.name.str.contains('eflect-')]
 
@@ -59,7 +57,6 @@ def process_app_data(df):
 
 def process_cpu_data(df):
     """ Computes the cpu jiffy rate of each 50ms bucket """
-    df.columns = ['timestamp', 'cpu', 'user', 'nice', 'system', 'idle', 'iowait', 'irq', 'softirq', 'steal', 'guest', 'guest_nice']
     df['jiffies'] = df.drop(columns = ['timestamp', 'cpu', 'idle', 'iowait']).sum(axis = 1)
     df.timestamp = bucket_timestamps(df.timestamp)
 
@@ -73,7 +70,6 @@ def process_cpu_data(df):
 
 def process_yappi_data(df):
     """ Computes the method call rate of each 1s bucket """
-    df.columns = ['timestamp', 'id', 'tsub', 'calls', 'method']
     df.timestamp = bucket_timestamps(df.timestamp)
     df = df.set_index(['timestamp', 'id', 'method']).tsub
     df = df / df.groupby(['timestamp', 'id']).sum()
