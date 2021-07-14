@@ -19,12 +19,14 @@ def pre_process(data_dir):
     energy = []
     traces = []
     for f in os.listdir(os.path.join(data_dir)):
-        df = pd.read_csv(os.path.join(data_dir, f))
         if 'ProcTaskSample' in f:
+            df = pd.read_csv(os.path.join(data_dir, f))
             app.append(process_app_data(df))
         elif 'ProcStatSample' in f:
+            df = pd.read_csv(os.path.join(data_dir, f))
             cpu.append(process_cpu_data(df))
         elif 'EnergySample' in f:
+            df = pd.read_csv(os.path.join(data_dir, f))
             energy.append(process_energy_data(df))
 
     return pd.concat(app), pd.concat(cpu), pd.concat(energy)
@@ -32,10 +34,10 @@ def pre_process(data_dir):
 def align_methods(footprints, data_dir):
         energy = []
         for f in os.listdir(os.path.join(data_dir)):
-            df = pd.read_csv(os.path.join(data_dir, f))
             if 'YappiSample' in f:
+                df = pd.read_csv(os.path.join(data_dir, f))
                 df = footprints.groupby('id').sum() * process_yappi_data(df)
-                df = df.groupby('trace').sum().sort_values(ascending=False)
+                df = df.groupby('method').sum().sort_values(ascending=False)
                 energy.append(df)
 
         return pd.concat(energy)

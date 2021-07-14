@@ -71,7 +71,7 @@ def process_cpu_data(df):
 def process_yappi_data(df):
     """ Computes the method call rate of each 1s bucket """
     df.timestamp = bucket_timestamps(df.timestamp)
-    df = df.set_index(['timestamp', 'id', 'trace']).calls
+    df = df.set_index(['timestamp', 'id', 'method']).tsub
     df = df / df.groupby(['timestamp', 'id']).sum()
 
     return df
