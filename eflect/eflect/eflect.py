@@ -5,7 +5,6 @@ import threading
 
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from multiprocessing import Pipe
-from subprocess import Popen
 from time import sleep, time
 
 import psutil
