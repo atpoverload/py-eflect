@@ -1,15 +1,17 @@
-""" Methods that handle rapl data.
+""" Methods that sample rapl data.
 
 This module manages a pyRAPL Measurement to be sampled periodically.
 """
 
-import pandas as pd
 import pyRAPL
+
+from eflect.data import get_unixtime
+from eflect.proto.rapl_pb2 import RaplSample
 
 MEASUREMENT = None
 
-def sample_rapl():
-    """ Gets a reading from the measurement. """
+def get_rapl_result():
+    """ Returns a rapl result. """
     global MEASUREMENT
     if MEASUREMENT is None:
         pyRAPL.setup()
@@ -21,19 +23,19 @@ def sample_rapl():
 
     return energy
 
-def parse_rapl_data(data):
-    """ Stops the measurement and puts the pyRAPL output into a DataFrame. """
-    parsed_data = []
-    for sample in data:
-        df = pd.DataFrame(data = zip(sample.pkg, sample.dram))
-        df /= 1000000
-        df.index = ['dram', 'package']
-        df.columns.name = 'domain'
-        df = df.stack().unstack(0).reset_index()
-        df['cpu'] = 0
-        df['gpu'] = 0
-        df['timestamp'] = pd.to_datetime(sample.timestamp, unit='s')
-        parsed_data.append(df)
+def sample_rapl():
+    """ Returns a RaplSample. """
+    data = []
+    energy = get_rapl_result()
+    for socket, (pkg, dram) in enumerate(zip(energy.pkg, energy.dram)):
+        sample = RaplSample()
+        sample.timestamp = get_unixtime(energy.timestamp)
+        sample.socket = socket
+        sample.cpu = 0
+        sample.dram = dram
+        sample.package = pkg
+        sample.gpu = 0
 
-    # rapl reports the instaneous difference, so we need cumsum
-    return pd.concat(parsed_data).set_index(['timestamp', 'domain'])[['dram', 'cpu', 'package', 'gpu']].unstack().cumsum().stack()
+        data.append(sample)
+
+    return data

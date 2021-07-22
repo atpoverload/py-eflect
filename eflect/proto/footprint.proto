@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package eflect.processing;
+
+message EnergyFootprint {
+  required int64 timestamp = 1;
+  required int64 thread_id = 2;
+  required string thread_name = 3;
+  repeated string stack_trace = 4;
+  required double energy = 5;
+}
+
+message EnergyFootprints {
+  repeated EnergyFootprint footprint = 1;
+}

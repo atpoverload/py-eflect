@@ -1,1 +1,1 @@
-from eflect.processing.processing import account_energy
+from eflect.processing.processing import compute_footprint

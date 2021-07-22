@@ -1,12 +1,14 @@
-from eflect.data.jiffies import sample_cpu
-from eflect.data.jiffies import parse_cpu_data
-from eflect.data.jiffies import sample_tasks
-from eflect.data.jiffies import parse_tasks_data
+from time import time
 
+def get_unixtime(timestamp=None):
+    if timestamp is None:
+        return int(10 ** 3 * time())
+    else:
+        return int(10 ** 3 * timestamp)
+
+from eflect.data.proc_stat import sample_proc_stat
+from eflect.data.proc_task import sample_proc_task
 from eflect.data.rapl import sample_rapl
-from eflect.data.rapl import parse_rapl_data
+from eflect.data.yappi import sample_yappi
 
-# from eflect.data.pdu import sample_pdu
-# from eflect.data.pdu import parse_pdu_data
-
-from eflect.data.yappi import parse_yappi_data
+from eflect.data.sample_storage import SampleStorage

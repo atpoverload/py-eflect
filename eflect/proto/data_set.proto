@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package eflect.data;
+
+import "eflect/proto/rapl.proto";
+import "eflect/proto/proc_stat.proto";
+import "eflect/proto/proc_task.proto";
+import "eflect/proto/yappi.proto";
+
+message EflectDataSet {
+  repeated RaplSample rapl = 1;
+  repeated ProcStatSample proc_stat = 2;
+  repeated ProcTaskSample proc_task = 3;
+  repeated YappiSample yappi_stack_trace = 4;
+}

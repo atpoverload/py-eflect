@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package eflect.data;
+
+message ProcTaskSample {
+  required int64 timestamp = 1;
+  required int64 thread_id = 2;
+  required string thread_name = 3;
+  required int64 cpu = 4;
+  required int64 user = 5;
+  required int64 system = 6;
+}

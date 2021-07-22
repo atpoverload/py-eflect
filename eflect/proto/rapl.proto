@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package eflect.data;
+
+message RaplSample {
+  required int64 timestamp = 1;
+  required int64 socket = 2;
+  required double cpu = 3;
+  required double package = 4;
+  required double dram = 5;
+  required double gpu = 6;
+}

@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+package eflect.data;
+
+import "eflect/proto/data_set.proto";
+import "eflect/proto/footprint.proto";
+
+message EflectExperiment {
+  required EflectDataSet data = 1;
+  repeated EflectFootprint footprint = 2;
+  repeated EflectExperimentMetadata metadata = 3;
+}
+
+// this should contain the system it was run on, the command run, maybe the pid
+// and some timestamps for start/end
+message EflectExperimentMetadata {
+  required string command = 1;
+  required string system_info = 2;
+  required int64 pid = 3;
+  required int64 start = 4;
+  required int64 end = 5;
+}
