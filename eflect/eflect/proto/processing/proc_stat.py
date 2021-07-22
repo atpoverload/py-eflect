@@ -1,3 +1,5 @@
+""" Parses ProcStatSamples to csv records. """
+
 import pandas as pd
 
 def parse_proc_stat(proc_stat):

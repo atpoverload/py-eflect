@@ -6,10 +6,11 @@ from time import time
 
 import yappi
 
-from eflect.data import get_unixtime
+from eflect.data.util import get_unixtime
 from eflect.proto.yappi_pb2 import YappiSample
 
 def sample_yappi():
+    """ Returns YappiSamples for each thread's traces including children """
     timestamp = get_unixtime()
     data = []
     threads = {thread.ident: thread.native_id for thread in threading.enumerate()}

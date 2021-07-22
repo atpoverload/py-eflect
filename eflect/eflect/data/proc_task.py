@@ -8,7 +8,7 @@ import os
 
 from time import time
 
-from eflect.data import get_unixtime
+from eflect.data.util import get_unixtime
 from eflect.proto.proc_task_pb2 import ProcTaskSample
 
 def get_tasks(pid):

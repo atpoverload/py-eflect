@@ -1,3 +1,5 @@
+""" Processing for yappi csv data. """
+
 from eflect.processing.preprocessing import bucket_timestamps
 
 def process_yappi_data(df):

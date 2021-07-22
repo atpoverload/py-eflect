@@ -1,3 +1,5 @@
+""" Parses ProcTaskSamples to csv records. """
+
 import pandas as pd
 
 def parse_proc_task(proc_task):

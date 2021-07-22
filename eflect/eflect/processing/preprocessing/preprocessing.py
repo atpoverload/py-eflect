@@ -1,3 +1,5 @@
+""" Preprocessing methods to clean up data. """
+
 from pandas import to_datetime
 
 SAMPLE_INTERVAL = '50ms'

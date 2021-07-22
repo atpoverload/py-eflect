@@ -1,3 +1,5 @@
+""" Object that collects eflect samples into an EflectDataSet. """
+
 from eflect.proto.data_set_pb2 import EflectDataSet
 from eflect.proto.proc_stat_pb2 import ProcStatSample
 from eflect.proto.proc_task_pb2 import ProcTaskSample
@@ -15,14 +17,11 @@ class SampleStorage:
         }
 
     def add(self, data):
+        """ Adds a sample to the field. """
         for sample_type in [ProcStatSample, ProcTaskSample, RaplSample, YappiSample]:
-            try:
-                sample = sample_type()
-                sample.CopyFrom(data)
-                self.data[sample_type].add().CopyFrom(sample)
-                return
-            except:
-                pass
+            if isinstance(data, sample_type):
+                self.data[sample_type].add().CopyFrom(data)
 
     def process(self):
+        """ Returns the stored data set. """
         return self.data_set

@@ -1,3 +1,5 @@
+""" Processing for rapl csv data. """
+
 from eflect.processing.preprocessing import bucket_timestamps, max_rolling_difference
 
 WRAP_AROUND_VALUE = 16384

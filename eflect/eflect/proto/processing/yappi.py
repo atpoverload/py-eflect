@@ -1,3 +1,5 @@
+""" Parses YappiSamples to csv records. """
+
 import pandas as pd
 
 def parse_yappi(yappi_stack_trace):

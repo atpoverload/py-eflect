@@ -1,3 +1,5 @@
+""" Processing for /proc/stat and /proc/[pid]/task/[tid]/stat csv data. """
+
 from eflect.processing.preprocessing import bucket_timestamps, max_rolling_difference
 
 def process_proc_stat_data(df):

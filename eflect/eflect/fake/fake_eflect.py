@@ -1,4 +1,4 @@
-""" A data collector for eflect. """
+""" A copy of eflect that uses a fake rapl source. """
 
 import os
 
@@ -11,7 +11,7 @@ import yappi
 from eflect.data import SampleStorage
 from eflect.data import sample_proc_stat
 from eflect.data import sample_proc_task
-from eflect.data import sample_rapl
+from eflect.fake import sample_fake_rapl
 from eflect.data import sample_yappi
 from eflect.proto.data_set_pb2 import EflectDataSet
 
@@ -60,7 +60,7 @@ class Eflect:
             # energy
             self.data_futures.append(self.executor.submit(
                 periodic_sample,
-                sample_rapl
+                sample_fake_rapl
             ))
 
             # yappi
@@ -108,10 +108,3 @@ def profile(workload, period=DEFAULT_PERIOD):
 
     eflect.stop()
     return eflect.read()
-
-def load_data(data_set_path):
-    """ Loads a EflectDataSet from the path """
-    with open(data_set_path, 'rb') as f:
-        data_set = EflectDataSet()
-        data_set.ParseFromString(f.read())
-        return data_set

@@ -8,13 +8,13 @@ import os
 
 from time import time
 
-from eflect.data import get_unixtime
+from eflect.data.util import get_unixtime
 from eflect.proto.proc_stat_pb2 import ProcStatSample
 
 PROC_STAT = os.path.join('/proc', 'stat')
 
 def sample_proc_stat():
-    """ Returns the current time and by-cpu jiffies """
+    """ Returns ProcStatSamples for each cpu """
     data = []
     timestamp = get_unixtime()
     with open(PROC_STAT) as f:

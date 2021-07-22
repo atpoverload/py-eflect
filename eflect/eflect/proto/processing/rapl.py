@@ -1,3 +1,5 @@
+""" Parses RaplSamples to csv records. """
+
 import pandas as pd
 
 def parse_rapl(rapl):
