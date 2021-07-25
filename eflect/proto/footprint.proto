@@ -2,7 +2,7 @@ syntax = "proto2";
 
 package eflect.processing;
 
-message EnergyFootprint {
+message EflectFootprint {
   required int64 timestamp = 1;
   required int64 thread_id = 2;
   required string thread_name = 3;
@@ -10,6 +10,6 @@ message EnergyFootprint {
   required double energy = 5;
 }
 
-message EnergyFootprints {
-  repeated EnergyFootprint footprint = 1;
+message EflectFootprints {
+  repeated EflectFootprint footprint = 1;
 }

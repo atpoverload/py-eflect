@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from eflect.data.util import get_unixtime
-from eflect.proto.footprint_pb2 import EnergyFootprint, EnergyFootprints
+from eflect.proto.footprint_pb2 import EflectFootprint, EflectFootprints
 from eflect.proto.processing import parse_proc_stat
 from eflect.proto.processing import parse_proc_task
 from eflect.proto.processing import parse_rapl
@@ -45,7 +45,7 @@ def align_yappi_methods(energy, yappi_methods):
     return energy
 
 def populate_footprint(idx, energy):
-    footprint = EnergyFootprint()
+    footprint = EflectFootprint()
     footprint.timestamp = get_unixtime(10 ** 3 * idx[0].timestamp())
     footprint.thread_id = idx[1]
     footprint.thread_name = idx[2]
@@ -71,7 +71,7 @@ def compute_footprint(data):
         process_yappi_data(parse_yappi(data.yappi_stack_trace)),
     )
 
-    footprints = EnergyFootprints()
+    footprints = EflectFootprints()
     for idx, s in energy.iteritems():
         footprints.footprint.add().CopyFrom(populate_footprint(idx, s))
 
