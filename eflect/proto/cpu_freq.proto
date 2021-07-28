@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+package eflect.data;
+
+message CpuFreqSample {
+  required int64 timestamp = 1;
+  required int64 cpu = 2;
+  required int64 freq = 3;
+}

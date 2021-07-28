@@ -28,13 +28,18 @@ def sample_rapl():
     """ Returns a RaplSample. """
     data = []
     energy = get_rapl_result()
+    pkg = len(energy.pkg) * [0]
+    dram = len(energy.dram) * [0]
     for socket, (pkg, dram) in enumerate(zip(energy.pkg, energy.dram)):
+        pkg[socket] += pkg
+        dram[socket] += dram
+
         sample = RaplSample()
         sample.timestamp = get_unixtime(energy.timestamp)
         sample.socket = socket
         sample.cpu = 0
-        sample.dram = dram
-        sample.package = pkg
+        sample.dram = dram[socket]
+        sample.package = pkg[socket]
         sample.gpu = 0
 
         data.append(sample)

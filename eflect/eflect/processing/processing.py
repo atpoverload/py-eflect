@@ -71,6 +71,8 @@ def compute_footprint(data):
         process_yappi_data(parse_yappi(data.yappi_stack_trace)),
     )
 
+    print(energy)
+
     footprints = EflectFootprints()
     for idx, s in energy.iteritems():
         footprints.footprint.add().CopyFrom(populate_footprint(idx, s))

@@ -9,6 +9,7 @@ from time import sleep, time
 import yappi
 
 from eflect.data import SampleStorage
+from eflect.data import sample_cpu_freq
 from eflect.data import sample_proc_stat
 from eflect.data import sample_proc_task
 from eflect.data import sample_rapl
@@ -67,6 +68,12 @@ class Eflect:
             self.yappi_executor = ThreadPoolExecutor(1)
             yappi.start()
             self.data_futures.append(self.yappi_executor.submit(self.__periodic_sample_yappi))
+
+            # freqs
+            self.data_futures.append(self.executor.submit(
+                periodic_sample,
+                sample_cpu_freq
+            ))
 
     def stop(self):
         """ Stops data collection """
