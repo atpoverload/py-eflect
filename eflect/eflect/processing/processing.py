@@ -71,7 +71,7 @@ def compute_footprint(data):
         process_yappi_data(parse_yappi(data.yappi_stack_trace)),
     )
 
-    print(energy.sort_values(ascending=False))
+    print(energy.sort_values(ascending=False).head(50))
 
     footprints = EflectFootprints()
     for idx, s in energy.iteritems():
