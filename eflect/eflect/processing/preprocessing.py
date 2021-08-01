@@ -71,7 +71,17 @@ def process_cpu_data(df):
 def process_yappi_data(df):
     """ Computes the method call rate of each 1s bucket """
     df.timestamp = bucket_timestamps(df.timestamp)
+    df = df[~df.method.str.contains('eflect/eflect')]
     df = df.set_index(['timestamp', 'id', 'method']).tsub
     df = df / df.groupby(['timestamp', 'id']).sum()
+
+    return df
+
+def process_nvidia_data(df):
+    """ Computes the power of each 50ms bucket """
+    df.timestamp = bucket_timestamps(df.timestamp)
+    df.columns = ['timestamp', '', 'pci.bus_id', '', 'power']
+    df.power = df.power.str.split(' ').str[1].astype(float)
+    df = df.groupby(['timestamp', 'pci.bus_id']).power.sum()
 
     return df

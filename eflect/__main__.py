@@ -67,9 +67,13 @@ def main():
         raise ArgumentError('specified output directory {} was not found!'.format(args.output))
 
     # get the footprints
-    footprint, ranking = eflect.read(output_dir = args.output)
+    footprint, ranking, footprint2, ranking2 = eflect.read(output_dir = args.output)
+
     footprint.to_csv(os.path.join(args.output, 'footprint.csv'))
     ranking.to_csv(os.path.join(args.output, 'ranking.csv'))
+
+    footprint2.to_csv(os.path.join(args.output, 'footprint-gpu.csv'))
+    ranking2.to_csv(os.path.join(args.output, 'ranking-gpu.csv'))
 
 if __name__ == '__main__':
     main()
