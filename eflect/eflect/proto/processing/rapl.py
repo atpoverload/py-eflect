@@ -20,4 +20,5 @@ def parse_rapl(rapl):
         'gpu'
     ]
     df.timestamp = pd.to_datetime(df.timestamp, unit='ms')
+    df[['cpu', 'package', 'dram', 'gpu']] /= 10 ** 3
     return df

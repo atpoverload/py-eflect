@@ -18,6 +18,6 @@ def process_rapl_data(df):
 
     energy, ts = max_rolling_difference(df.unstack())
     energy = energy.stack().stack().apply(check_wrap_around)
-    energy = energy.groupby(['timestamp', 'socket']).sum().unstack().div(ts, axis = 0).stack()
+    energy = energy.groupby(['timestamp', 'socket', 'component']).sum().div(ts, axis = 0)
 
     return energy

@@ -31,7 +31,14 @@ def account_energy(energy, activity):
     activity['socket'] = activity.cpu.apply(DOMAIN_CONVERSION)
     activity = activity.set_index(['timestamp', 'id', 'socket'])[0]
 
-    return energy * activity
+    # i don't like merging
+    activity = activity.reset_index()
+    energy = energy.reset_index()
+    df = pd.merge(activity, energy, on=['timestamp', 'socket'])
+    df[0] = df['0_x'] * df['0_y']
+    df = df.set_index(['timestamp', 'id', 'component', 'socket'])[0]
+
+    return df
 
 def align_yappi_methods(energy, yappi_methods):
     """ Aligns yappi traces to timestamp-id pairs. """
@@ -39,8 +46,8 @@ def align_yappi_methods(energy, yappi_methods):
     energy['name'] = energy.id.str.split('-').str[1]
     energy.id = energy.id.str.split('-').str[0].replace(np.nan, 0).astype(int)
 
-    energy = energy.groupby(['timestamp', 'id', 'name'])[0].sum() * yappi_methods
-    energy = energy.groupby(['timestamp', 'id', 'name', 'stack_trace']).sum().sort_values(ascending=False)
+    energy = energy.groupby(['timestamp', 'id', 'name', 'component'])[0].sum() * yappi_methods
+    energy = energy.groupby(['timestamp', 'id', 'name', 'component', 'stack_trace']).sum().sort_values(ascending=False)
 
     return energy
 
@@ -49,8 +56,9 @@ def populate_footprint(idx, energy):
     footprint.timestamp = get_unixtime(10 ** 3 * idx[0].timestamp())
     footprint.thread_id = idx[1]
     footprint.thread_name = idx[2]
+    footprint.component = idx[3]
     footprint.energy = energy
-    for method in idx[3].split(';'):
+    for method in idx[4].split(';'):
         footprint.stack_trace.append(method)
 
     return footprint
@@ -77,4 +85,5 @@ def compute_footprint(data):
     for idx, s in energy.iteritems():
         footprints.footprint.add().CopyFrom(populate_footprint(idx, s))
 
+    print(footprints.footprint[0])
     return footprints

@@ -6,8 +6,9 @@ message EflectFootprint {
   required int64 timestamp = 1;
   required int64 thread_id = 2;
   required string thread_name = 3;
-  repeated string stack_trace = 4;
-  required double energy = 5;
+  required string component = 4;
+  repeated string stack_trace = 5;
+  required double energy = 6;
 }
 
 message EflectFootprints {
