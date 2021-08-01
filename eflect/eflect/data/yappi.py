@@ -18,6 +18,8 @@ def sample_yappi():
         if thread.tid not in threads.keys() or thread.tid == threading.current_thread().ident:
             continue
         for trace in yappi.get_func_stats(ctx_id=thread.id):
+            # TODO(timurbey): i'm not getting a meaningful number from tsub
+            # with the sampled slices
             duration = int(10 ** 3 * trace[7] / trace[3])
             if len(trace[9]) > 0:
                 for child_trace in trace[9]:

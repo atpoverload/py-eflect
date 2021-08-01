@@ -2,6 +2,7 @@
 
 import pandas as pd
 
+# TODO(timurbey): this needs to be updated with eflect/eflect/data/yappi.py
 def parse_yappi(yappi_stack_trace):
     df = pd.DataFrame([[
         stack_trace.timestamp,
