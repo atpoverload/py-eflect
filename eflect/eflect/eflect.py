@@ -44,7 +44,7 @@ class Eflect:
         if not self.running:
             self.running = True
 
-            self.executor = ProcessPoolExecutor(3)
+            self.executor = ProcessPoolExecutor(4)
             self.data_futures = []
 
             # jiffies
