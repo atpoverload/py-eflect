@@ -48,7 +48,7 @@ def parse_eflect_args():
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
-        args.workload = lambda: module.run()
+        args.workload = lambda: module.main()
     elif args.code is not None:
         args.workload = lambda: exec(args.code)
     else:
