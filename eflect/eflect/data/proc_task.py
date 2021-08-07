@@ -28,9 +28,9 @@ def parse_task_stat(timestamp, stat):
     sample.timestamp = timestamp
     sample.thread_id = int(stats[0])
     sample.thread_name = " ".join(stats[1:offset])[1:-1]
-    sample.cpu = int(stats[38])
-    sample.user = int(stats[13])
-    sample.system = int(stats[14])
+    sample.cpu = int(stats[38 + offset - 2])
+    sample.user = int(stats[13 + offset - 2])
+    sample.system = int(stats[14 + offset - 2])
 
     return sample
 
