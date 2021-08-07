@@ -37,20 +37,11 @@ def parse_eflect_args():
         help='whether to use a fake rapl source'
     )
     parser.add_argument(
-        '-o',
-        '--out',
-        dest='output',
-        default=os.getcwd(),
-        help='path to output the data set to'
-    )
-
-    # processing args
-    parser.add_argument(
         '-d',
         '--data',
-        dest='data_set',
+        dest='data',
         default=None,
-        help='path to the data set'
+        help='path to write the data set in profiling mode; path of the data set otherwise'
     )
 
     args = parser.parse_args()
@@ -63,16 +54,13 @@ def parse_eflect_args():
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
-        args.workload = lambda: module.run()
+        args.workload = lambda: module.main()
     elif args.code is not None:
         args.workload = lambda: exec(args.code)
     else:
         args.workload = None
 
-    # check if there's an input data set
-    if args.workload is not None and args.data_set is not None:
-        print('workload found; ignoring --data argument')
-    elif args.workload is None and args.data_set is None:
+    if args.workload is None and args.data is None:
         raise RuntimeError('one of --file, --code, or --data must be provided!')
 
     return args

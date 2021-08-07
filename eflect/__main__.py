@@ -16,25 +16,32 @@ def get_data(args):
             return fake_eflect.profile(args.workload, period = args.period)
         else:
             return eflect.profile(args.workload, period = args.period)
-    elif os.path.exists(args.data_set):
+    elif os.path.exists(args.data):
         # load in an existing data_set
-        return eflect.load_data(data_set_path=args.data_set)
+        return eflect.load_data(data_set_path=args.data)
     else:
-        raise ArgumentError('specified output data {} was not found!'.format(args.data_set))
+        raise ArgumentError('specified output data {} was not found!'.format(args.data))
+
+def write_data(args, data, footprint):
+    """ Write the footprint and, if a workload was run, the raw data. """
+    if args.workload is not None and args.data is not None:
+        with open(os.path.join(args.data, 'eflect-data.pb'), 'wb') as f:
+            f.write(data.SerializeToString())
+        with open(os.path.join(args.data, 'eflect-footprint.pb'),'wb') as f:
+            f.write(footprint.SerializeToString())
+    elif args.data is not None:
+        data_dir = os.path.dirname(args.data)
+        with open(os.path.join(data_dir,'eflect-footprint.pb'),'wb') as f:
+            f.write(footprint.SerializeToString())
 
 def main():
     args = parse_eflect_args()
 
     data = get_data(args)
     footprint = compute_footprint(data)
-
-    # we should have a user output customization somewhere here
-    with open(os.path.join(args.output, 'eflect-data.pb'), 'wb') as f:
-        f.write(data.SerializeToString())
-    with open(os.path.join(args.output, 'eflect-footprint.pb'), 'wb') as f:
-        f.write(footprint.SerializeToString())
-
-    # print(footprint)
+    write_data(args, data, footprint)
+    # we should have a human readable output
+    print(footprint.footprint[-1])
 
 if __name__ == '__main__':
     main()
