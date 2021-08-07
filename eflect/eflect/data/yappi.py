@@ -19,13 +19,13 @@ def sample_yappi():
             continue
         for trace in yappi.get_func_stats(ctx_id=thread.id):
             # TODO(timurbey): i'm not getting a meaningful number from tsub
-            # with the sampled slices
-            duration = int(10 ** 3 * trace[7] / trace[3])
+            # with the sampled slices; we have calls but i'm not a fan of them
+            # TODO(timurbey): this needs to be updated with eflect/eflect/data/yappi.py
             if len(trace[9]) > 0:
                 for child_trace in trace[9]:
                     sample = YappiSample()
                     sample.timestamp = timestamp
-                    sample.duration = duration
+                    sample.call_count = child_trace[1]
                     sample.thread_id = threads[thread.tid]
                     sample.stack_trace.append(child_trace[7])
                     sample.stack_trace.append(trace[15])
@@ -34,7 +34,7 @@ def sample_yappi():
             else:
                 sample = YappiSample()
                 sample.timestamp = timestamp
-                sample.duration = duration
+                sample.call_count = trace[3]
                 sample.thread_id = threads[thread.tid]
                 sample.stack_trace.append(trace[15])
 

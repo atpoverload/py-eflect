@@ -4,7 +4,7 @@ package eflect.data;
 
 message YappiSample {
   required int64 timestamp = 1;
-  required int64 duration = 2;
+  required int64 call_count = 2;
   required int64 thread_id = 3;
   repeated string stack_trace = 4;
 }
