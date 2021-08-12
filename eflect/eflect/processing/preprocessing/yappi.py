@@ -10,4 +10,4 @@ def process_yappi_data(df):
     df = df.groupby(['timestamp', 'id', 'stack_trace']).sum()
     df = df / df.groupby(['timestamp', 'id']).sum()
 
-    return df.duration
+    return df.call_count
