@@ -1,12 +1,15 @@
 """ Driver for a cli tool to profile code with eflect. """
 
 import os
+import sys
+
+sys.path.append('.')
 
 import eflect
+
 from eflect.fake import fake_eflect
 
 from args import parse_eflect_args
-from eflect.processing import compute_footprint
 
 def get_data(args):
     """ Runs the workload or, if there's no workload, load data from a path """
@@ -38,7 +41,7 @@ def main():
     args = parse_eflect_args()
 
     data = get_data(args)
-    footprint = compute_footprint(data)
+    footprint = eflect.compute_footprint(data)
     write_data(args, data, footprint)
     # we should have a human readable output
     print(footprint.footprint[-1])

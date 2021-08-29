@@ -6,8 +6,6 @@ the proc system and jiffies.
 
 import os
 
-from time import time
-
 from eflect.data.util import get_unixtime
 from eflect.proto.cpu_freq_pb2 import CpuFreqSample
 

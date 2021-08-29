@@ -14,7 +14,6 @@ from eflect.data import sample_proc_stat
 from eflect.data import sample_proc_task
 from eflect.data import sample_rapl
 from eflect.data import sample_yappi
-from eflect.proto.data_set_pb2 import EflectDataSet
 
 # used to sync with ProcessPoolExecutor
 PARENT_PIPE, CHILD_PIPE = Pipe()
@@ -39,7 +38,7 @@ class Eflect:
         self.period = period
         self.running = False
 
-    def start(self):
+    def start(self, pid=None):
         """ Starts data collection """
         if not self.running:
             self.running = True
@@ -55,7 +54,7 @@ class Eflect:
             self.data_futures.append(self.executor.submit(
                 periodic_sample,
                 sample_proc_task,
-                sample_args=os.getpid()
+                sample_args=os.getpid() if pid is None else pid
             ))
 
             # energy
@@ -115,10 +114,3 @@ def profile(workload, period=DEFAULT_PERIOD):
 
     eflect.stop()
     return eflect.read()
-
-def load_data(data_set_path):
-    """ Loads a EflectDataSet from the path """
-    with open(data_set_path, 'rb') as f:
-        data_set = EflectDataSet()
-        data_set.ParseFromString(f.read())
-        return data_set

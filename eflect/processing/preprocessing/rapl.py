@@ -2,7 +2,8 @@
 
 import pandas as pd
 
-from eflect.processing.preprocessing import bucket_timestamps, max_rolling_difference
+from eflect.processing.preprocessing.util import bucket_timestamps
+from eflect.processing.preprocessing.util import max_rolling_difference
 
 WRAP_AROUND_VALUE = 16384
 

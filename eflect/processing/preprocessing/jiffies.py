@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from eflect.processing.preprocessing import bucket_timestamps, max_rolling_difference
+from eflect.processing.preprocessing.util import bucket_timestamps, max_rolling_difference
 
 def parse_proc_stat(proc_stat):
     df = pd.DataFrame([[

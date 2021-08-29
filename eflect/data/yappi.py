@@ -2,8 +2,6 @@
 
 import threading
 
-from time import time
-
 import yappi
 
 from eflect.data.util import get_unixtime

@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from eflect.processing.preprocessing import bucket_timestamps
+from eflect.processing.preprocessing.util import bucket_timestamps
 
 # TODO(timurbey): this needs to be updated with eflect/eflect/data/yappi.py
 def parse_yappi(yappi_stack_trace):

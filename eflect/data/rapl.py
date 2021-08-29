@@ -14,13 +14,16 @@ MEASUREMENT = None
 def get_rapl_result():
     """ Returns a rapl result. """
     global MEASUREMENT
-    if MEASUREMENT is None:
-        pyRAPL.setup()
-        MEASUREMENT = pyRAPL.Measurement('bar')
+    try:
+        if MEASUREMENT is None:
+            pyRAPL.setup()
+            MEASUREMENT = pyRAPL.Measurement('bar')
+            MEASUREMENT.begin()
+        MEASUREMENT.end()
+        energy = MEASUREMENT.result
         MEASUREMENT.begin()
-    MEASUREMENT.end()
-    energy = MEASUREMENT.result
-    MEASUREMENT.begin()
+    except:
+        raise pyRAPL.PyRAPLException('rapl not available on this system')
 
     return energy
 
