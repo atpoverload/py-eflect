@@ -1,4 +1,4 @@
-""" Processing for rapl csv data. """
+""" Processing for rapl data using pandas. """
 
 import pandas as pd
 
@@ -8,6 +8,7 @@ from eflect.processing.preprocessing.util import max_rolling_difference
 WRAP_AROUND_VALUE = 16384
 
 def parse_rapl(rapl):
+    """ Converts a collection of RaplSamples to a DataFrame. """
     df = pd.DataFrame([[
         sample.timestamp,
         sample.socket,
@@ -25,10 +26,12 @@ def parse_rapl(rapl):
         'gpu'
     ]
     df.timestamp = pd.to_datetime(df.timestamp, unit='ms')
-    df[['cpu', 'package', 'dram', 'gpu']] /= 10 ** 3
     return df
 
-def check_wrap_around(value):
+# TODO(timur): i've been told by alejandro that the value i'm using isn't
+#   actually the wrap around. i'm not sure how to look it up properly however.
+def maybe_apply_wrap_around(value):
+    """ Checks if the value needs to be adjusted by the wrap around. """
     if value < 0:
         return value + WRAP_AROUND_VALUE
     else:
@@ -41,7 +44,11 @@ def process_rapl_data(df):
     df.columns.name = 'component'
 
     energy, ts = max_rolling_difference(df.unstack())
-    energy = energy.stack().stack().apply(check_wrap_around)
+    energy = energy.stack().stack().apply(maybe_apply_wrap_around)
     energy = energy.groupby(['timestamp', 'socket', 'component']).sum().div(ts, axis = 0)
 
     return energy
+
+def rapl_to_df(data):
+    """ Converts a collection of RaplSamples to a processed DataFrame. """
+    return process_rapl_data(parse_rapl(data))

@@ -9,18 +9,21 @@ from time import sleep, time
 import yappi
 
 from eflect.data import SampleStorage
+# TODO(timur): it would be nice to import a collection of "sources" instead
 from eflect.data import sample_cpu_freq
 from eflect.data import sample_proc_stat
 from eflect.data import sample_proc_task
 from eflect.data import sample_rapl
 from eflect.data import sample_yappi
+from eflect.proto.data_set_pb2 import EflectDataSet
 
 # used to sync with ProcessPoolExecutor
 PARENT_PIPE, CHILD_PIPE = Pipe()
-# default of 50ms
-DEFAULT_PERIOD = 0.050
+DEFAULT_PERIOD_MS = 0.050
 
-# this should be a submit() chain so we can stop with shutdown()
+# TODO(timur): should there be some sort of collector? currently we have to
+# pass the pipe around, which isn't ideal
+# TODO(timur): this doesn't reschedule, so the thread/process isn't shared
 def periodic_sample(sample_func, **kwargs):
     """ Collects data from a source periodically """
     data = []
@@ -30,11 +33,11 @@ def periodic_sample(sample_func, **kwargs):
             data.extend(sample_func(kwargs['sample_args']))
         else:
             data.extend(sample_func())
-        sleep(max(0, DEFAULT_PERIOD - (time() - start)))
+        sleep(max(0, DEFAULT_PERIOD_MS - (time() - start)))
     return data
 
 class Eflect:
-    def __init__(self, period=DEFAULT_PERIOD):
+    def __init__(self, period=DEFAULT_PERIOD_MS):
         self.period = period
         self.running = False
 
@@ -105,7 +108,7 @@ class Eflect:
 
         return data
 
-def profile(workload, period=DEFAULT_PERIOD):
+def profile(workload, period=DEFAULT_PERIOD_MS):
     """ Returns a EflectDataSet of the workload """
     eflect = Eflect(period=period)
     eflect.start()
@@ -114,3 +117,10 @@ def profile(workload, period=DEFAULT_PERIOD):
 
     eflect.stop()
     return eflect.read()
+
+def load_data_set(data_set_path):
+    """ Loads an EflectDataSet from the path. """
+    with open(data_set_path, 'rb') as f:
+        data_set = EflectDataSet()
+        data_set.ParseFromString(f.read())
+        return data_set

@@ -10,15 +10,15 @@ from eflect.data.util import get_unixtime
 from eflect.proto.proc_task_pb2 import ProcTaskSample
 
 def get_tasks(pid):
-    """ Returns pid's current tasks """
+    """ Returns pid's current tasks. """
     return os.listdir(os.path.join('/proc', str(pid), 'task'))
 
 def get_task_stat_file(pid, tid):
-    """ Returns the stat for a task """
+    """ Returns the stat for a task. """
     return os.path.join('/proc', str(pid), 'task', str(tid), 'stat')
 
 def parse_task_stat(timestamp, stat):
-    """ Returns a ProcTaskSample for the given stat """
+    """ Returns a ProcTaskSample for the given stat. """
     stats = stat.split(' ')
     offset = len(stats) - 52 + 2
 
@@ -33,7 +33,7 @@ def parse_task_stat(timestamp, stat):
     return sample
 
 def sample_proc_task(pid=None):
-    """ Returns the ProcTaskSamples for all tasks of pid """
+    """ Returns the ProcTaskSamples for all tasks of pid. """
     if pid is None:
         pid = os.getpid()
     data = []

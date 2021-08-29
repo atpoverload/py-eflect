@@ -1,4 +1,4 @@
-""" Methods that turn EflectDataSets into EflectFootprints. """
+""" Methods that account activity and energy. """
 
 import os
 
@@ -9,7 +9,7 @@ import pandas as pd
 DOMAIN_CONVERSION = lambda x: 0 if int(x) < 20 else 1
 
 def account_jiffies(proc_task, proc_stat):
-    """ Returns the ratio of the jiffies with a correction for overaccounting. """
+    """ Returns the ratio of the jiffies with a corrections for overaccounting. """
     return (proc_task / proc_stat.replace(0, 1)).replace(np.inf, 1).clip(0, 1)
 
 def account_rapl_energy(rapl_energy, activity):
@@ -18,14 +18,17 @@ def account_rapl_energy(rapl_energy, activity):
     activity['socket'] = activity.cpu.apply(DOMAIN_CONVERSION)
     activity = activity.set_index(['timestamp', 'id', 'socket'])[0]
 
-    # i don't like merging
-    activity = activity.reset_index()
-    rapl_energy = rapl_energy.reset_index()
-    df = pd.merge(activity, rapl_energy, on=['timestamp', 'socket'])
-    df[0] = df['0_x'] * df['0_y']
-    df = df.set_index(['timestamp', 'id', 'component', 'socket'])[0]
+    # TODO(timur): we should just be able to take the product but the axis
+    #   misalignment causes it to fail sometimes
+    df = rapl_energy * activity
 
-    return df
+    # activity = activity.reset_index()
+    # rapl_energy = rapl_energy.reset_index()
+    # df = pd.merge(activity, rapl_energy, on=['timestamp', 'socket'])
+    # df[0] = df['0_x'] * df['0_y']
+    # df = df.set_index(['timestamp', 'id', 'component', 'socket'])[0]
+
+    return df.reset_index().set_index(['timestamp', 'id', 'component', 'socket'])
 
 def align_yappi_methods(energy, yappi_methods):
     """ Aligns yappi traces to timestamp-id pairs. """

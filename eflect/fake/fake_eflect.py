@@ -33,6 +33,7 @@ def periodic_sample(sample_func, **kwargs):
         sleep(max(0, DEFAULT_PERIOD - (time() - start)))
     return data
 
+# TODO(timur): can we build a skeleton since profiler.Eflect is identical?
 class Eflect:
     def __init__(self, period=DEFAULT_PERIOD):
         self.period = period

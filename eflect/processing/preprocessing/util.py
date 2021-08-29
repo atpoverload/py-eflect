@@ -9,7 +9,7 @@ def bucket_timestamps(timestamps, sample_interval=SAMPLE_INTERVAL):
     return to_datetime(timestamps).dt.floor(sample_interval)
 
 def max_rolling_difference(df, window_size = WINDOW_SIZE):
-    """ Computes a rolling difference of points up to the window size """
+    """ Computes a rolling difference of points up to the window size. """
     values = df - df.rolling(window_size).min()
 
     timestamps = df.reset_index().timestamp.astype(int) / 10**9

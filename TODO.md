@@ -1,3 +1,5 @@
+ - DON'T TOUCH THE INTERMEDIATE DATA
  - Why can't we get a concept of activity from yappi?
  - Reduce the size of eflect footprint
+   - The data is very wide
  - Add freq processing to check for calmness

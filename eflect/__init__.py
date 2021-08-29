@@ -1,2 +1,1 @@
-from eflect.profiler import Eflect, profile
-from eflect.processing import compute_footprint, load_data
+from eflect.profiler import Eflect, profile, load_data_set

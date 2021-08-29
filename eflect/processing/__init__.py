@@ -1,1 +1,1 @@
-from eflect.processing.processing import compute_footprint, load_data
+from eflect.processing.footprint import compute_footprint

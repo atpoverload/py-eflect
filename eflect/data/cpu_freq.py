@@ -1,8 +1,4 @@
-""" Methods that sample /proc/stat jiffies data.
-
-Refer to https://man7.org/linux/man-pages/man5/proc.5.html for details about
-the proc system and jiffies.
-"""
+""" Methods that sample the cpu frequencies. """
 
 import os
 
@@ -13,6 +9,7 @@ CPU_FREQ = os.path.sep.join(['/sys', 'devices', 'system', 'cpu'])
 CPU_FREQ_DATA = os.path.sep.join(['cpufreq', 'cpuinfo_cur_freq'])
 
 def sample_cpu_freq():
+    """ Returns CpuFreqSamples for each cpu. """
     data = []
     timestamp = get_unixtime()
     for cpu in range(os.cpu_count()):
