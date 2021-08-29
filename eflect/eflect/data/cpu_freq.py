@@ -9,7 +9,7 @@ import os
 from time import time
 
 from eflect.data.util import get_unixtime
-from eflect.proto import CpuFreqSample
+from eflect.proto.cpu_freq_pb2 import CpuFreqSample
 
 CPU_FREQ = os.path.sep.join(['/sys', 'devices', 'system', 'cpu'])
 CPU_FREQ_DATA = os.path.sep.join(['cpufreq', 'cpuinfo_cur_freq'])

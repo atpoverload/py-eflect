@@ -1,11 +1,11 @@
 """ Object that collects eflect samples into an EflectDataSet. """
 
-from eflect.proto import EflectDataSet
-from eflect.proto import CpuFreqSample
-from eflect.proto import ProcStatSample
-from eflect.proto import ProcTaskSample
-from eflect.proto import RaplSample
-from eflect.proto import YappiSample
+from eflect.proto.cpu_freq_pb2 import CpuFreqSample
+from eflect.proto.data_set_pb2 import EflectDataSet
+from eflect.proto.proc_stat_pb2 import ProcStatSample
+from eflect.proto.proc_task_pb2 import ProcTaskSample
+from eflect.proto.rapl_pb2 import RaplSample
+from eflect.proto.yappi_pb2 import YappiSample
 
 class SampleStorage:
     def __init__(self):
