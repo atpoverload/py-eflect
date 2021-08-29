@@ -9,13 +9,13 @@ import pandas as pd
 
 from eflect.data.util import get_unixtime
 from eflect.proto.footprint_pb2 import EflectFootprint, EflectFootprints
-from eflect.proto.processing import parse_proc_stat
-from eflect.proto.processing import parse_proc_task
-from eflect.proto.processing import parse_rapl
-from eflect.proto.processing import parse_yappi
+from eflect.processing.preprocessing import parse_proc_stat
 from eflect.processing.preprocessing import process_proc_stat_data
+from eflect.processing.preprocessing import parse_proc_task
 from eflect.processing.preprocessing import process_proc_task_data
+from eflect.processing.preprocessing import parse_rapl
 from eflect.processing.preprocessing import process_rapl_data
+from eflect.processing.preprocessing import parse_yappi
 from eflect.processing.preprocessing import process_yappi_data
 
 # TODO: find out if there's a general conversion formula

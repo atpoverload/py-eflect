@@ -1,6 +1,60 @@
 """ Processing for /proc/stat and /proc/[pid]/task/[tid]/stat csv data. """
 
+import pandas as pd
+
 from eflect.processing.preprocessing import bucket_timestamps, max_rolling_difference
+
+def parse_proc_stat(proc_stat):
+    df = pd.DataFrame([[
+        sample.timestamp,
+        sample.cpu,
+        sample.user,
+        sample.nice,
+        sample.system,
+        sample.idle,
+        sample.iowait,
+        sample.irq,
+        sample.softirq,
+        sample.steal,
+        sample.guest,
+        sample.guest_nice
+    ] for sample in proc_stat])
+    df.columns = [
+        'timestamp',
+        'cpu',
+        'user',
+        'nice',
+        'system',
+        'idle',
+        'iowait',
+        'irq',
+        'softirq',
+        'steal',
+        'guest',
+        'guest_nice'
+    ]
+    df.timestamp = pd.to_datetime(df.timestamp, unit='ms')
+    return df
+
+def parse_proc_task(proc_task):
+    df = pd.DataFrame([[
+        sample.timestamp,
+        sample.thread_id,
+        sample.thread_name,
+        sample.cpu,
+        sample.user,
+        sample.system
+    ] for sample in proc_task])
+    df.columns = [
+        'timestamp',
+        'id',
+        'name',
+        'cpu',
+        'user',
+        'system',
+    ]
+    df.timestamp = pd.to_datetime(df.timestamp, unit='ms')
+    return df
 
 def process_proc_stat_data(df):
     """ Computes the cpu jiffy rate of each 50ms bucket """
