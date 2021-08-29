@@ -29,7 +29,7 @@ def write_data(args, data, footprint):
             f.write(data.SerializeToString())
         with open(os.path.join(args.data, 'eflect-footprint.pb'),'wb') as f:
             f.write(footprint.SerializeToString())
-    elif args.data is not None:
+    elif not args.fake and args.data is not None:
         data_dir = os.path.dirname(args.data)
         with open(os.path.join(data_dir,'eflect-footprint.pb'),'wb') as f:
             f.write(footprint.SerializeToString())
