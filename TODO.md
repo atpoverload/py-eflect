@@ -1,5 +1,24 @@
- - DON'T TOUCH THE INTERMEDIATE DATA
- - Why can't we get a concept of activity from yappi?
- - Reduce the size of eflect footprint
-   - The data is very wide
+ - DON'T TOUCH THE SAMPLE STRUCTURES ANYMORE
+ - How to deal with oom/big data problems?
+   - shrink footprint
+     - change instances of string to an int and keep a map
+       - main culprit is stack traces
+       - proc task names can also be mapped
+     - make footprint encapsulate more information
+       - each footprint describes a timestamp-thread pair
+         - each footprint has a collection of stack traces with call counts
+         - each footprint has a collection of power estimations by component
+     - how to handle big data
+       - when we are consuming too much memory, we write to disk
+         - we need a manager thread that tells the other workers to start/stop
+         - do we stop eflect completely to do this or just suspend everyone?
+       - pipe all data to disk
+         - make each process create a file to push samples to
+         - use a handler thread that is sent the data to consume and writes it to disk periodically
+ - Why can't we get a good concept of activity from yappi?
+   - samples contain ncalls instead of tsub (which is empty with these samples)
+   - maybe we can have a timestamp window we watch and sample each time
+     - this requires tracking on threads as well; we need a timestamp, a thread name, and a stack trace
+     - maybe we can just add a timestamp field to the pit to indicate when it was sampled?
  - Add freq processing to check for calmness
+   - there's already a script for this somewhere
