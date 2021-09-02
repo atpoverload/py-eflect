@@ -1,9 +1,5 @@
 """ Methods that turn EflectDataSets into EflectFootprints. """
 
-import os
-
-from sys import argv
-
 from eflect.data.util import get_unixtime
 from eflect.processing.accounting import account_jiffies, account_rapl_energy, align_yappi_methods
 from eflect.proto.footprint_pb2 import EflectFootprint, EflectFootprints

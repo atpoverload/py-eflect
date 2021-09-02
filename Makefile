@@ -9,4 +9,5 @@ protos:
 	protoc --python_out=$(SRC) $(PROTOS)
 
 smoke_test: protos
+	python3 eflect -f tests/sleep_test.py --fake
 	python3 eflect -f tests/sleep_test.py

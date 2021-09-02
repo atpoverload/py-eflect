@@ -37,7 +37,7 @@ def write_data(args, data, footprint):
         data_dir = os.path.dirname(args.data)
         # with open(os.path.join(data_dir,'eflect-footprint.pb'),'wb') as f:
         #     f.write(footprint.SerializeToString())
-        footprint.to_csv(os.path.join(args.data, 'eflect-footprint.csv'))
+        footprint.to_csv(os.path.join(data_dir, 'eflect-footprint.csv'))
 
 def main():
     args = parse_eflect_args()

@@ -2,11 +2,19 @@
 
 An implementation of [`eflect`](https://github.com/timurbey/eflect.git) for python.
 
-This tool can be run using a file or a code snippet
+## running
+
+First, you'll need to build the protos:
 
 ```bash
-python3 eflect -f path/to/file.py
-python3 eflect -c 'import numpy as np; np.arange(10**9)'
+sudo apt-get install protoc && make protos && make smoke_test
 ```
 
-and produces a directory called `data` that contains the collected samples and the energy footprint produced from the samples.
+Once built, this tool can be run on a file or a code snippet:
+
+```bash
+mkdir data && python3 eflect -f path/to/file.py --data data
+mkdir data && python3 eflect -c 'import numpy as np; np.arange(10**9)' --data data
+```
+
+this produces a directory called `data` that contains the collected samples as a proto binary and the energy footprint produced from the samples as a tall csv.

@@ -1,3 +1,6 @@
 pyRAPL
 yappi
 protobuf
+pandas
+tensorflow
+numpy
