@@ -6,7 +6,7 @@ This module manages a pyRAPL Measurement to be sampled periodically.
 import pyRAPL
 
 from eflect.util import get_unixtime
-from eflect.sample.proto.rapl_pb2 import RaplSample
+from eflect.sample.protos.rapl_pb2 import RaplSample
 
 MEASUREMENT = None
 
@@ -31,21 +31,42 @@ def get_rapl_result():
 
 def sample_rapl():
     """ Returns RaplSamples for each socket. """
-    data = []
+    sample = RaplSample()
+    sample.timestamp = get_unixtime()
     energy = get_rapl_result()
     for socket, (pkg, dram) in enumerate(zip(energy.pkg, energy.dram)):
+        # if there's no reading here, it's probably garbage
         if pkg == 0 or dram == 0:
             continue
 
-        # TODO(timur): i made this millijoules but we actually will want joules eventually
-        sample = RaplSample()
-        sample.timestamp = get_unixtime(energy.timestamp)
-        sample.socket = socket
-        sample.cpu = 0
-        sample.dram = dram / 10 ** 3
-        sample.package = pkg / 10 ** 3
-        sample.gpu = 0
+        reading = RaplSample()
+        reading.socket = socket
+        reading.cpu = 0
+        reading.dram = dram / 10 ** 3
+        reading.package = pkg / 10 ** 3
+        reading.gpu = 0
 
-        data.append(sample)
+        sample.readings.add().CopyFrom(reading)
+    return sample
 
-    return data
+def rapl_sources():
+    return [{'sample_func': sample_rapl}]
+
+COUNTER = 0
+
+def sample_fake_rapl():
+    global COUNTER
+    COUNTER += 1
+
+    sample = RaplSample()
+    sample.timestamp = get_unixtime()
+
+    reading = RaplSample.RaplReading()
+    reading.socket = 0
+    reading.cpu = COUNTER
+    reading.dram = COUNTER
+    reading.package = COUNTER
+    reading.gpu = COUNTER
+    sample.readings.add().CopyFrom(reading)
+
+    return sample
