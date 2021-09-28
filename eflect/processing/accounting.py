@@ -26,9 +26,6 @@ def account_rapl_energy(activity, rapl):
 
     rapl = rapl_samples_to_df(rapl)
 
-    print(rapl)
-    print(activity)
-
     # TODO(timur): we should just be able to take the product but the axis
     #   misalignment causes it to fail sometimes
     try:
