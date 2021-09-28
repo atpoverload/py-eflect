@@ -1,32 +1,44 @@
-""" Methods that account activity and energy. """
+""" Methods that account activity and energy using pandas. """
 
 import os
 
 import numpy as np
 import pandas as pd
 
-# TODO: find out if there's a general conversion formula
+from eflect.processing.preprocessing import cpu_samples_to_df
+from eflect.processing.preprocessing import task_samples_to_df
+from eflect.processing.preprocessing import rapl_samples_to_df
+
+# TODO(timur): find out if there's a general conversion formula
 DOMAIN_CONVERSION = lambda x: 0 if int(x) < 20 else 1
 
-def account_jiffies(proc_task, proc_stat):
-    """ Returns the ratio of the jiffies with a corrections for overaccounting. """
-    return (proc_task / proc_stat.replace(0, 1)).replace(np.inf, 1).clip(0, 1)
+def account_jiffies(task, cpu):
+    """ Returns the ratio of the jiffies with a correction for overaccounting. """
+    task = task_samples_to_df(task)
+    cpu = cpu_samples_to_df(cpu)
+    return (task / cpu.replace(0, 1)).replace(np.inf, 1).clip(0, 1)
 
-def account_rapl_energy(rapl_energy, activity):
+def account_rapl_energy(activity, rapl):
     """ Returns the product of the energy and the cpu-aligned activity data. """
     activity = activity.reset_index()
     activity['socket'] = activity.cpu.apply(DOMAIN_CONVERSION)
     activity = activity.set_index(['timestamp', 'id', 'socket'])[0]
 
+    rapl = rapl_samples_to_df(rapl)
+
+    print(rapl)
+    print(activity)
+
     # TODO(timur): we should just be able to take the product but the axis
     #   misalignment causes it to fail sometimes
-    df = rapl_energy * activity
-
-    # activity = activity.reset_index()
-    # rapl_energy = rapl_energy.reset_index()
-    # df = pd.merge(activity, rapl_energy, on=['timestamp', 'socket'])
-    # df[0] = df['0_x'] * df['0_y']
-    # df = df.set_index(['timestamp', 'id', 'component', 'socket'])[0]
+    try:
+        df = rapl * activity
+    except:
+        activity = activity.reset_index()
+        rapl_energy = rapl_energy.reset_index()
+        df = pd.merge(activity, rapl_energy, on=['timestamp', 'socket'])
+        df[0] = df['0_x'] * df['0_y']
+        df = df.set_index(['timestamp', 'id', 'component', 'socket'])[0]
 
     return df.reset_index().set_index(['timestamp', 'id', 'component', 'socket'])
 

@@ -7,16 +7,20 @@ from eflect.processing.preprocessing.util import max_rolling_difference
 
 WRAP_AROUND_VALUE = 16384
 
-def parse_rapl(rapl):
+def parse_rapl_samples(samples):
     """ Converts a collection of RaplSamples to a DataFrame. """
-    df = pd.DataFrame([[
-        sample.timestamp,
-        sample.socket,
-        sample.cpu,
-        sample.package,
-        sample.dram,
-        sample.gpu
-    ] for sample in rapl])
+    records = []
+    for sample in samples:
+        for reading in sample.readings:
+            records.append([
+                sample.timestamp,
+                reading.socket,
+                reading.cpu,
+                reading.package,
+                reading.dram,
+                reading.gpu
+            ])
+    df = pd.DataFrame(records)
     df.columns = [
         'timestamp',
         'socket',
@@ -49,6 +53,6 @@ def process_rapl_data(df):
 
     return energy
 
-def rapl_to_df(data):
+def rapl_samples_to_df(samples):
     """ Converts a collection of RaplSamples to a processed DataFrame. """
-    return process_rapl_data(parse_rapl(data))
+    return process_rapl_data(parse_rapl_samples(samples))

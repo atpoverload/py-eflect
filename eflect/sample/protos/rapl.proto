@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package eflect.sample.protos;
+
+message RaplSample {
+  required int64 timestamp = 1;
+  repeated RaplReading readings = 2;
+
+  message RaplReading {
+    required int64 socket = 2;
+    optional double cpu = 3;
+    optional double package = 4;
+    optional double dram = 5;
+    optional double gpu = 6;
+  }
+}

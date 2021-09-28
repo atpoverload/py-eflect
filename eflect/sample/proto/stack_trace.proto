@@ -1,10 +1,10 @@
 syntax = "proto2";
 
-package eflect.data;
+package eflect.sample.proto;
 
-message YappiSample {
+message StackTraceSample {
   required int64 timestamp = 1;
   required int64 call_count = 2;
   required int64 thread_id = 3;
-  repeated string stack_trace = 4;
+  repeated int64 stack_trace_id = 4;
 }

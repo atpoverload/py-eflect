@@ -1,0 +1,34 @@
+syntax = "proto2";
+
+package eflect.sample.protos;
+
+message CpuSample {
+  required int64 timestamp = 1;
+  repeated CpuStat stats = 2;
+
+  message CpuStat {
+    required int64 cpu = 1;
+    required int64 user = 2;
+    required int64 nice = 3;
+    required int64 system = 4;
+    required int64 idle = 5;
+    required int64 iowait = 6;
+    required int64 irq = 7;
+    required int64 softirq = 8;
+    required int64 steal = 9;
+    required int64 guest = 10;
+    required int64 guest_nice = 11;
+  }
+}
+
+message TaskSample {
+  required int64 timestamp = 1;
+  repeated TaskStat stats = 2;
+
+  message TaskStat {
+    required int64 thread_id = 1;
+    required int64 cpu = 2;
+    required int64 user = 3;
+    required int64 system = 4;
+  }
+}
