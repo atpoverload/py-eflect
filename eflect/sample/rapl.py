@@ -44,8 +44,8 @@ def sample_rapl():
         reading = RaplReading()
         reading.socket = socket
         reading.cpu = 0
-        reading.dram = dram
-        reading.package = pkg
+        reading.dram = int(dram)
+        reading.package = int(pkg)
         reading.gpu = 0
 
         sample.reading.add().CopyFrom(reading)
