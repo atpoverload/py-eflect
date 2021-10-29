@@ -6,7 +6,7 @@ from eflect.sample import Sampler
 from eflect.sample.jiffies import jiffies_sources
 from eflect.sample.rapl import rapl_sources, sample_fake_rapl
 
-SOURCES = jiffies_sources() + [{'sample_func': sample_fake_rapl}] # + rapl_sources()
+SOURCES = jiffies_sources() + rapl_sources()
 
 class Eflect:
     def __init__(self, period=None):
