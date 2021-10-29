@@ -1,8 +1,8 @@
 """ Object that collects eflect samples into an EflectDataSet. """
 
-from eflect.sample.protos.data_set_pb2 import EflectDataSet
-from eflect.sample.protos.jiffies_pb2 import CpuSample, TaskSample
-from eflect.sample.protos.rapl_pb2 import RaplSample
+from eflect.protos.sample.data_set_pb2 import EflectDataSet
+from eflect.protos.sample.jiffies_pb2 import CpuSample, TaskSample
+from eflect.protos.sample.rapl_pb2 import RaplSample
 
 # TODO(timur): should all of this live in sampler.py?
 class SampleStorage:

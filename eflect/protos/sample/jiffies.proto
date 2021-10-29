@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package eflect.sample.protos;
+package eflect.protos.sample;
 
 message CpuSample {
   required int64 timestamp = 1;

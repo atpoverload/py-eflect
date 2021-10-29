@@ -1,6 +1,6 @@
 SRC=.
 PROTOS_OUT=eflect
-PROTOS=$(PROTOS_OUT)/**/protos
+PROTOS=$(PROTOS_OUT)/protos/**
 
 clean:
 	rm -r $(PROTOS)/*_pb2.py

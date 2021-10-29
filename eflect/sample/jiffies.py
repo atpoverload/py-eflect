@@ -7,7 +7,7 @@ the proc system and jiffies.
 import os
 
 from eflect.util import get_unixtime
-from eflect.sample.protos.jiffies_pb2 import CpuSample, TaskSample
+from eflect.protos.sample.jiffies_pb2 import CpuSample, TaskSample
 
 PROC_STAT = os.path.join('/proc', 'stat')
 

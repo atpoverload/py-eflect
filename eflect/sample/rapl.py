@@ -6,7 +6,7 @@ This module manages a pyRAPL Measurement to be sampled periodically.
 import pyRAPL
 
 from eflect.util import get_unixtime
-from eflect.sample.protos.rapl_pb2 import RaplSample
+from eflect.protos.sample.rapl_pb2 import RaplSample
 
 MEASUREMENT = None
 
@@ -39,7 +39,7 @@ def sample_rapl():
         if pkg == 0 or dram == 0:
             continue
 
-        reading = RaplSample()
+        reading = RaplReading()
         reading.socket = socket
         reading.cpu = 0
         reading.dram = dram / 10 ** 3
