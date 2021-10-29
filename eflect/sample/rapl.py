@@ -5,6 +5,8 @@ This module manages a pyRAPL Measurement to be sampled periodically.
 
 import pyRAPL
 
+from google.protobuf import text_format
+
 from eflect.util import get_unixtime
 from eflect.protos.sample.rapl_pb2 import RaplSample, RaplReading
 
@@ -46,8 +48,8 @@ def sample_rapl():
         reading.package = pkg / 10 ** 3
         reading.gpu = 0
 
-        sample.readings.add().CopyFrom(reading)
-    return sample
+        sample.reading.add().CopyFrom(reading)
+    return text_format.MessageToString(sample)
 
 def rapl_sources():
     return [{'sample_func': sample_rapl}]
@@ -61,12 +63,12 @@ def sample_fake_rapl():
     sample = RaplSample()
     sample.timestamp = get_unixtime()
 
-    reading = RaplSample.RaplReading()
+    reading = RaplReading()
     reading.socket = 0
     reading.cpu = COUNTER
     reading.dram = COUNTER
     reading.package = COUNTER
     reading.gpu = COUNTER
-    sample.readings.add().CopyFrom(reading)
+    sample.reading.add().CopyFrom(reading)
 
-    return sample
+    return text_format.MessageToString(sample)

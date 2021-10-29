@@ -1,5 +1,7 @@
 """ Object that collects eflect samples into an EflectDataSet. """
 
+from google.protobuf import text_format
+
 from eflect.protos.sample.sample_pb2 import DataSet
 from eflect.protos.sample.jiffies_pb2 import CpuSample, TaskSample
 from eflect.protos.sample.rapl_pb2 import RaplSample
@@ -17,8 +19,13 @@ class SampleStorage:
     def add(self, data):
         """ Adds a sample to the field. """
         for sample_type in self.data.keys():
-            if isinstance(data, sample_type):
+            try:
+                data = text_format.Parse(data, sample_type())
                 self.data[sample_type].add().CopyFrom(data)
+                return
+            except:
+                pass
+        print('this should never happen')
 
     def read(self):
         """ Returns the stored data set. """
