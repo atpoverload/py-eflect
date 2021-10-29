@@ -2,33 +2,37 @@ syntax = "proto2";
 
 package eflect.protos.sample;
 
-message CpuSample {
-  required int64 timestamp = 1;
-  repeated CpuStat stats = 2;
+option java_multiple_files = true;
+option java_package = "eflect.protos.sample";
 
-  message CpuStat {
-    required int64 cpu = 1;
-    required int64 user = 2;
-    required int64 nice = 3;
-    required int64 system = 4;
-    required int64 idle = 5;
-    required int64 iowait = 6;
-    required int64 irq = 7;
-    required int64 softirq = 8;
-    required int64 steal = 9;
-    required int64 guest = 10;
-    required int64 guest_nice = 11;
-  }
+message CpuStat {
+  required uint32 cpu = 1;
+  optional uint32 user = 2;
+  optional uint32 nice = 3;
+  optional uint32 system = 4;
+  optional uint32 idle = 5;
+  optional uint32 iowait = 6;
+  optional uint32 irq = 7;
+  optional uint32 softirq = 8;
+  optional uint32 steal = 9;
+  optional uint32 guest = 10;
+  optional uint32 guest_nice = 11;
+}
+
+message CpuSample {
+  required uint64 timestamp = 1;
+  repeated CpuStat stat = 2;
+}
+
+message TaskStat {
+  required uint32 task_id = 1;
+  optional string name = 2;
+  required uint32 cpu = 3;
+  optional uint32 user = 4;
+  optional uint32 system = 5;
 }
 
 message TaskSample {
-  required int64 timestamp = 1;
-  repeated TaskStat stats = 2;
-
-  message TaskStat {
-    required int64 thread_id = 1;
-    required int64 cpu = 2;
-    required int64 user = 3;
-    required int64 system = 4;
-  }
+  required uint64 timestamp = 1;
+  repeated TaskStat stat = 2;
 }
