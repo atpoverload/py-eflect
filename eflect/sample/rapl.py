@@ -5,10 +5,7 @@ This module manages a pyRAPL Measurement to be sampled periodically.
 
 import pyRAPL
 
-from google.protobuf import text_format
-
 from eflect.util import get_unixtime
-from eflect.protos.sample.rapl_pb2 import RaplSample, RaplReading
 
 MEASUREMENT = None
 
@@ -33,23 +30,22 @@ def get_rapl_result():
 
 def sample_rapl():
     """ Returns RaplSamples for each socket. """
-    sample = RaplSample()
-    sample.timestamp = get_unixtime()
+    sample = []
+    timestamp = get_unixtime()
     energy = get_rapl_result()
     for socket, (pkg, dram) in enumerate(zip(energy.pkg, energy.dram)):
         # if there's no reading here, it's probably garbage
         if pkg == 0 or dram == 0:
             continue
 
-        reading = RaplReading()
-        reading.socket = socket
-        reading.cpu = 0
-        reading.dram = int(dram)
-        reading.package = int(pkg)
-        reading.gpu = 0
-
-        sample.reading.add().CopyFrom(reading)
-    return text_format.MessageToString(sample)
+        sample.append([
+            socket,
+            0,
+            int(dram),
+            int(pkg),
+            0
+        ])
+    return ['rapl', timestamp, sample]
 
 def rapl_sources():
     return [{'sample_func': sample_rapl}]

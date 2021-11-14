@@ -6,42 +6,24 @@ the proc system and jiffies.
 
 import os
 
-from google.protobuf import text_format
-
 from eflect.util import get_unixtime
-from eflect.protos.sample.jiffies_pb2 import CpuSample, CpuStat, TaskSample, TaskStat
 
 PROC_STAT = os.path.join('/proc', 'stat')
 
 def parse_cpu_stat(cpu, stats):
     """ Returns a CpuStat for the given stat. """
-    stats = list(map(int, stats.replace(os.linesep, '').split(' ')[1:]))
-
-    stat = CpuStat()
-    stat.cpu = cpu
-    stat.user = stats[0]
-    stat.nice = stats[1]
-    stat.system = stats[2]
-    stat.idle = stats[3]
-    stat.iowait = stats[4]
-    stat.irq = stats[5]
-    stat.softirq = stats[6]
-    stat.steal = stats[7]
-    stat.guest = stats[8]
-    stat.guest_nice = stats[9]
-
-    return stat
+    return list(map(int, [cpu] + stats.replace(os.linesep, '').split(' ')[1:]))
 
 def sample_cpus():
     """ Returns a CpuSample for each cpu. """
-    sample = CpuSample()
-    sample.timestamp = get_unixtime()
+    sample = []
+    timestamp = get_unixtime()
     with open(PROC_STAT) as f:
         # throw away the first line, which is the sum of all cpus; we want by cpu
         f.readline()
         for cpu in range(os.cpu_count()):
-            sample.stat.add().CopyFrom(parse_cpu_stat(cpu, f.readline()))
-    return text_format.MessageToString(sample)
+            sample.append(parse_cpu_stat(cpu, f.readline()))
+    return ['cpu', timestamp, sample]
 
 def get_tasks(pid):
     """ Returns pid's current tasks. """
@@ -56,27 +38,25 @@ def parse_task_stat(stat):
     stats = stat.split(' ')
     offset = len(stats) - 52 + 2
 
-    stat = TaskStat()
-    stat.task_id = int(stats[0])
-    # we don't need this right now
-    # stat.thread_name = " ".join(stats[1:offset])[1:-1]
-    stat.cpu = int(stats[38 + offset - 2])
-    stat.user = int(stats[13 + offset - 2])
-    stat.system = int(stats[14 + offset - 2])
-
-    return stat
+    return [
+        int(stats[0]),
+        " ".join(stats[1:offset])[1:-1],
+        int(stats[38 + offset - 2]),
+        int(stats[13 + offset - 2]),
+        int(stats[14 + offset - 2])
+    ]
 
 def sample_tasks(pid):
     """ Returns a TaskSample for all tasks of pid. """
-    sample = TaskSample()
-    sample.timestamp = get_unixtime()
+    sample = []
+    timestamp = get_unixtime()
     for task in get_tasks(pid):
         try:
             with open(get_task_stat_file(pid, task)) as f:
-                sample.stat.add().CopyFrom(parse_task_stat(f.readline()))
+                sample.append((parse_task_stat(f.readline())))
         except:
             print('process ' + task + ' terminated before being sampled!')
-    return text_format.MessageToString(sample)
+    return ['task', timestamp, sample]
 
 def jiffies_sources():
     return [
