@@ -1,3 +1,4 @@
+// containers for the sample data structures
 syntax = "proto2";
 
 package eflect.protos.sample;
@@ -8,6 +9,7 @@ import "protos/sample/rapl.proto";
 option java_multiple_files = true;
 option java_package = "eflect.protos.sample";
 
+// single sample container
 message Sample {
   oneof data {
     // energy data
@@ -19,6 +21,7 @@ message Sample {
   }
 }
 
+// multiple sample container
 message DataSet {
   // energy data
   repeated RaplSample rapl = 1;

@@ -1,3 +1,5 @@
+// TODO(timur): find a rapl reference to use so that the user knows what this
+// represents.
 syntax = "proto2";
 
 package eflect.protos.sample;
@@ -5,15 +7,16 @@ package eflect.protos.sample;
 option java_multiple_files = true;
 option java_package = "eflect.protos.sample";
 
+// socket energy counts as described by rapl
 message RaplReading {
   required uint32 socket = 2;
-  optional uint64 cpu = 3;
-  optional uint64 package = 4;
-  optional uint64 dram = 5;
-  optional uint64 gpu = 6;
+  optional uint64 cpu = 3; // total counts, which are uJ
+  optional uint64 package = 4; // total counts, which are uJ
+  optional uint64 dram = 5; // total counts, which are uJ
+  optional uint64 gpu = 6; // total counts, which are uJ
 }
 
 message RaplSample {
-  required uint64 timestamp = 1;
+  required uint64 timestamp = 1; // ms unix time
   repeated RaplReading reading = 2;
 }
