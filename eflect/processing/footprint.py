@@ -1,7 +1,6 @@
 """ Methods that turn EflectDataSets into EflectFootprints. """
 
-from eflect.util import get_unixtime
-from eflect.processing.accounting import account_jiffies, account_rapl_energy, align_yappi_methods
+from eflect.processing.accounting import account_jiffies, account_rapl_energy
 
 def compute_footprint(data):
     """ Produces an energy footprint from the data set. """
